@@ -40,7 +40,6 @@ import { SubmittableResult } from '@polkadot/api'
 import { NInput, NFormItem, NButton } from 'naive-ui'
 
 const { $assets } = useNuxtApp()
-const assetManager = await $assets.getManager()
 const props = defineProps<{
   transactionRunning: boolean
 }>()
@@ -71,6 +70,7 @@ const destinationAddressValidationText = computed(() =>
 )
 const transferAsset = async () => {
   emit('change', true)
+  const assetManager = await $assets.getManager()
   await assetManager.transfer(
     assetHash2.value,
     destinationAddress.value,

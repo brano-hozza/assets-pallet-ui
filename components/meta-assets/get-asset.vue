@@ -24,7 +24,6 @@
 <script setup lang="ts">
 import { NInput, NFormItem, NButton } from 'naive-ui'
 const { $assets } = useNuxtApp()
-const assetManager = await $assets.getManager()
 const props = defineProps<{
   transactionRunning: boolean
 }>()
@@ -39,6 +38,7 @@ const assetHashValidationText = computed(() =>
 )
 const returnedAsset = ref()
 const getAsset = async () => {
+  const assetManager = await $assets.getManager()
   returnedAsset.value = await assetManager.get(assetHash.value)
 }
 </script>
