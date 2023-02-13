@@ -53,6 +53,25 @@ class AssetsManager {
       .addAsset(asset)
       .signAndSend(address, { signer: injector.signer }, handler)
   }
+
+  async transfer(
+    hash: string,
+    destinationAddress: string,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    devAccount = false
+  ) {
+    if (devAccount) {
+      const keyring = new Keyring({ type: 'sr25519' })
+      return this.api.tx.metaAssets
+        .transferAsset(hash, destinationAddress)
+        .signAndSend(keyring.createFromUri(address), handler)
+    }
+    const injector = await web3FromAddress(address)
+    return this.api.tx.metaAssets
+      .transferAsset(hash, destinationAddress)
+      .signAndSend(address, { signer: injector.signer }, handler)
+  }
 }
 export default defineNuxtPlugin(() => {
   return {
