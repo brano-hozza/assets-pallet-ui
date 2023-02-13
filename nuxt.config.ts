@@ -2,6 +2,16 @@
 export default defineNuxtConfig({
   typescript: {
     strict: true,
+    tsConfig: {
+      compilerOptions: {
+        skipLibCheck: true,
+        paths: {
+          'meta-assets/*': ['./*'],
+          '@polkadot/api/augment': ['src/interfaces/augment-api.ts'],
+          '@polkadot/types/augment': ['src/interfaces/augment-types.ts'],
+        },
+      },
+    },
   },
   ssr: false,
   runtimeConfig: {

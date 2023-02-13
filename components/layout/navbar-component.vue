@@ -62,7 +62,6 @@
 
 <script lang="ts" setup>
 import {
-  AppsFilled as AppsIcon,
   CycloneFilled as CycloneIcon,
   DarkModeFilled as DarkMode,
   DarkModeTwotone as LightMode,
