@@ -12,26 +12,28 @@ class AssetsManager {
   // eslint-disable-next-line no-useless-constructor
   private constructor(private api: ApiPromise) {}
 
-  public static async get(): Promise<AssetsManager> {
+  public static async get(url = 'ws://localhost:9944'): Promise<AssetsManager> {
     if (!this.instance) {
-      const wsProvider = new WsProvider('ws://localhost:9944')
+      const wsProvider = new WsProvider(url)
       const api = await ApiPromise.create({ provider: wsProvider })
-      AssetsManager.instance = new AssetsManager(api)
+      this.instance = new AssetsManager(api)
     }
-    return this.instance!
+    return this.instance
   }
 
-  get(asset: string) {
-    return this.api.query.metaAssets.assetsStore(asset)
+  async get(hash: string) {
+    const asset = await this.api.query.metaAssets.assetsStore(hash)
+    return asset?.toHuman()
   }
 
-  geMultiple(...asset: string[]) {
-    return this.api.query.metaAssets.assetsStore(asset)
+  async getMultiple(...hashes: string[]) {
+    const assets = await this.api.query.metaAssets.assetsStore(hashes)
+    return assets?.toHuman()
   }
 
   async getAll() {
     const entries = await this.api.query.metaAssets.assetsStore.entries()
-    return entries?.map((val) => val?.[1]?.toHuman())
+    return entries?.map((val) => [val?.[0]?.toHuman(), val?.[1]?.toHuman()])
   }
 
   async add(
