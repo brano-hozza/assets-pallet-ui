@@ -17,6 +17,8 @@ type Asset = {
   meta: Record<string, any> | null
 }
 
+type Assets = { hash: string; asset: Asset }[]
+
 class AssetsManager {
   // eslint-disable-next-line no-use-before-define
   private static instance: AssetsManager | null = null
@@ -32,23 +34,28 @@ class AssetsManager {
     return this.instance
   }
 
-  async get(hash: string) {
-    const asset = await this.api.query.metaAssets.assetsStore(hash)
-    return asset?.toHuman()
+  async get(hash: string): Promise<Asset> {
+    const entry = await this.api.query.metaAssets.assetsStore(hash)
+    const asset = entry?.toHuman() as AssetDTO
+    asset.meta = asset.meta ? JSON.parse(asset.meta) : null
+    return asset as Asset
   }
 
-  async getMultiple(...hashes: string[]) {
+  async getMultiple(...hashes: string[]): Promise<Asset[]> {
     const assets = await this.api.query.metaAssets.assetsStore(hashes)
-    return assets?.toHuman()
+    return (assets?.toHuman() as AssetDTO[])?.map((asset) => {
+      asset.meta = asset.meta ? JSON.stringify(asset.meta) : null
+      return asset as Asset
+    })
   }
 
-  async getAll(): Promise<[string, Asset][]> {
+  async getAll(): Promise<Assets> {
     const entries = await this.api.query.metaAssets.assetsStore.entries()
     return entries?.map((val) => {
-      const key = val?.[0]?.toHuman() as string
-      const entry = val?.[1]?.toHuman() as AssetDTO
-      entry.meta = entry.meta ? JSON.parse(entry.meta) : null
-      return [key, entry as Asset]
+      const key = val?.[0]?.toHuman() as [string]
+      const asset = val?.[1]?.toHuman() as AssetDTO
+      asset.meta = asset.meta ? JSON.parse(asset.meta) : null
+      return { hash: key[0], asset: asset as Asset }
     })
   }
 

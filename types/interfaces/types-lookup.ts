@@ -697,7 +697,9 @@ declare module '@polkadot/types/lookup' {
     readonly isStorageOverflow: boolean;
     readonly isShortNameProvided: boolean;
     readonly isLongNameProvided: boolean;
-    readonly type: 'NoneValue' | 'StorageOverflow' | 'ShortNameProvided' | 'LongNameProvided';
+    readonly isInvalidOwner: boolean;
+    readonly isInvalidHash: boolean;
+    readonly type: 'NoneValue' | 'StorageOverflow' | 'ShortNameProvided' | 'LongNameProvided' | 'InvalidOwner' | 'InvalidHash';
   }
 
   /** @name SpRuntimeMultiSignature (119) */

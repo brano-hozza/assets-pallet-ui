@@ -26,7 +26,7 @@
     />
     <n-button
       type="primary"
-      :disabled="props.transactionRunning"
+      :disabled="props.transactionRunning || !propertyKey || !propertyValue"
       @click="addProperty()"
     >
       Add property
@@ -36,7 +36,11 @@
   <n-button
     style="width: 100%"
     type="primary"
-    :disabled="!!assetHashValidationStatus || props.transactionRunning"
+    :disabled="
+      !!assetHashValidationStatus ||
+      props.transactionRunning ||
+      assetMetadata.keys().length
+    "
     @click="updateAsset"
   >
     Update asset
@@ -63,14 +67,9 @@ const assetHashValidationStatus = computed(() =>
 const assetHashValidationText = computed(() =>
   assetHash.value.length === 66 ? undefined : 'Hash must have 66 hex characters'
 )
-// Metadata structure
-
-type Meta = {
-  [key: string]: string
-}
 
 // Asset metdata
-const assetMetadata = ref<Meta>({})
+const assetMetadata = ref<Record<string, string>>({})
 
 const propertyKey = ref('')
 const propertyValue = ref('')
@@ -92,17 +91,26 @@ const addProperty = () => {
 
 // Update asset
 const updateAsset = async () => {
+  emit('change', true)
   const assetManager = await $assets.getManager()
   await assetManager.updateMeta(
     assetHash.value,
     assetMetadata.value,
     selectedAccount.value!.address,
-    ({ status, txHash }: SubmittableResult) => {
+    ({ status, txHash, isError, internalError }: SubmittableResult) => {
       const notificationStore = useNotificationStore()
       notificationStore.create(
         'Transaction',
         `Transaction hash is ${txHash.toHex()}`
       )
+      if (isError) {
+        notificationStore.create(
+          'Transaction error',
+          `Transaction error ${internalError?.name} at blockHash ${status.asInBlock}`,
+          NotificationType.Error
+        )
+        emit('change', false)
+      }
       if (status.isFinalized) {
         notificationStore.create(
           'Transaction finalized',

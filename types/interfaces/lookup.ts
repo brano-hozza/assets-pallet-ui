@@ -681,7 +681,7 @@ export default {
    * Lookup117: pallet_meta_assets::pallet::Error<T>
    **/
   PalletMetaAssetsError: {
-    _enum: ['NoneValue', 'StorageOverflow', 'ShortNameProvided', 'LongNameProvided']
+    _enum: ['NoneValue', 'StorageOverflow', 'ShortNameProvided', 'LongNameProvided', 'InvalidOwner', 'InvalidHash']
   },
   /**
    * Lookup119: sp_runtime::MultiSignature
