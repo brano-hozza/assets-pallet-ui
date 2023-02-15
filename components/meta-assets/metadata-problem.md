@@ -1,12 +1,12 @@
 # Metadata problem
 
-While I was presenting my metadata implementation to my roommate I figured out that it doesn't make any sense.
+While I was presenting my metadata implementation to my roommate I figured out that it make no sense
 
 ## Original idea
 
 Main idea was that asset could have some structure like this:
 
-```json
+```jsonc
 {
     "owner": "0x223c12313c1...", // Owner of the asset
     "name": "Nice", // Name of the asset
@@ -29,7 +29,7 @@ Problem is that if we take this and we want to use this in some game. Who will a
 
 I was thinking that it would be possible change structure like this:
 
-```json
+```jsonc
 {
     "owner": "0x223c12313c1...", // Owner of the asset
     "name": "Nice", // Name of the asset
