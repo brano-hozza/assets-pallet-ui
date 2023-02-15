@@ -11,24 +11,23 @@
       placeholder="Asset hash"
     />
   </n-form-item>
-  <n-form-item
-    label="Destination addresss"
-    :validation-status="destinationAddressValidationStatus"
-    :feedback="destinationAddressValidationText"
-  >
-    <n-input
-      v-model:value="destinationAddress"
-      :disabled="props.transactionRunning"
-      placeholder="Destination address"
+
+  <n-form-item label="Destination address">
+    <n-select
+      v-model:value="selectedDestination"
+      :options="destinationOptions"
+      class="destination-select"
+      placeholder="Select destination"
+      :disabled="!selectedAccount || props.transactionRunning"
+      filterable
+      clearable
     />
   </n-form-item>
   <n-button
     style="width: 100%"
     type="primary"
     :disabled="
-      !!destinationAddressValidationStatus ||
-      !selectedAccount ||
-      props.transactionRunning
+      !selectedDestination || !selectedAccount || props.transactionRunning
     "
     @click="transferAsset"
   >
@@ -37,7 +36,7 @@
 </template>
 <script setup lang="ts">
 import { SubmittableResult } from '@polkadot/api'
-import { NInput, NFormItem, NButton } from 'naive-ui'
+import { NInput, NFormItem, NButton, NSelect } from 'naive-ui'
 
 const { $assets } = useNuxtApp()
 const props = defineProps<{
@@ -59,21 +58,47 @@ const assetHash2ValidationText = computed(() =>
     ? undefined
     : 'Hash must have 66 hex characters'
 )
-const destinationAddress = ref('')
-const destinationAddressValidationStatus = computed(() =>
-  destinationAddress.value.length === 48 ? undefined : 'error'
+
+const accounts = computed(() => accountStore.accounts.filter((acc) => !acc.dev))
+const devAccounts = computed(() =>
+  accountStore.accounts.filter((acc) => acc.dev)
 )
-const destinationAddressValidationText = computed(() =>
-  destinationAddress.value.length === 48
-    ? undefined
-    : 'Address must have 48 hex characters'
-)
+
+const selectedDestination = ref()
+
+const destinationOptions = computed(() => [
+  {
+    type: 'group',
+    label: 'Testing accounts',
+    key: 'testing',
+    children: devAccounts.value
+      .filter((val) => val.id !== selectedAccount.value?.id)
+      .map((val) => ({
+        label: val.meta.name,
+        key: val.id,
+        value: val.address,
+      })),
+  },
+  {
+    type: 'group',
+    label: 'Official accounts',
+    key: 'official',
+    children: accounts.value
+      .filter((val) => val.id !== selectedAccount.value?.id)
+      .map((val) => ({
+        label: val.meta.name,
+        key: val.id,
+        value: val.address,
+      })),
+  },
+])
+
 const transferAsset = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
   await assetManager.transfer(
     assetHash2.value,
-    destinationAddress.value,
+    selectedDestination.value,
     selectedAccount.value!.address,
     ({ status, txHash }: SubmittableResult) => {
       const notificationStore = useNotificationStore()

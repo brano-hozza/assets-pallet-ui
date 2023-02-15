@@ -20,6 +20,9 @@
       <get-asset :transaction-running="transactionRunning" />
       <n-divider />
 
+      <update-asset :transaction-running="transactionRunning" />
+      <n-divider />
+
       <!--TRANSFER SINGLE ASSET-->
       <transfer-asset
         :transaction-running="transactionRunning"
@@ -36,6 +39,7 @@ import ListAssets from '@/components/meta-assets/list-assets.vue'
 import AddAsset from '@/components/meta-assets/add-asset.vue'
 import GetAsset from '@/components/meta-assets/get-asset.vue'
 import TransferAsset from '@/components/meta-assets/transfer-asset.vue'
+import UpdateAsset from '@/components/meta-assets/update-asset.vue'
 definePageMeta({
   layout: false,
 })

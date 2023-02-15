@@ -14,16 +14,17 @@
     >
       <n-space vertical :size="[10, 20]">
         <n-divider v-if="devAccounts.length" dashed> Test accounts </n-divider>
-        <n-button
-          v-for="account in devAccounts"
-          v-if="devAccounts.length"
-          :key="account.id"
-          style="width: 100%"
-          type="primary"
-          @click="selectAccount(account.id)"
-        >
-          {{ account.meta.name }}
-        </n-button>
+        <n-space v-if="devAccounts.length" vertical :size="[10, 20]">
+          <n-button
+            v-for="account in devAccounts"
+            :key="account.id"
+            style="width: 100%"
+            type="primary"
+            @click="selectAccount(account.id)"
+          >
+            {{ account.meta.name }}
+          </n-button>
+        </n-space>
         <n-divider dashed> Wallet accounts </n-divider>
         <n-button
           v-for="account in accounts"

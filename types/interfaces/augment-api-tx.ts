@@ -6,7 +6,7 @@
 import '@polkadot/api-base/types/submittable';
 
 import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api-base/types';
-import type { Bytes, Compact, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
+import type { Bytes, Compact, Option, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
 
@@ -150,8 +150,9 @@ declare module '@polkadot/api-base/types/submittable' {
        * An example dispatchable that takes a singles value as a parameter, writes the value to
        * storage and emits an event. This function must be dispatched by a signed extrinsic.
        **/
-      addAsset: AugmentedSubmittable<(assetName: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes]>;
+      addAsset: AugmentedSubmittable<(assetName: Bytes | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
       transferAsset: AugmentedSubmittable<(hash: H256 | string | Uint8Array, destination: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, AccountId32]>;
+      updateMeta: AugmentedSubmittable<(hash: H256 | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Option<Bytes>]>;
       /**
        * Generic tx
        **/
