@@ -9,11 +9,10 @@ const props = defineProps<{
 }>()
 
 // All assets
-const allAssets = ref()
+const allAssets = ref({})
 const resolveAssets = async () => {
   const assetManager = await $assets.getManager()
-  const all = await assetManager.getAll()
-  allAssets.value = all
+  allAssets.value = await assetManager.getAllAssets()
 }
 
 watch(

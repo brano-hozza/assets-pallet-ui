@@ -118,6 +118,7 @@ declare module '@polkadot/api-base/types/storage' {
     };
     metaAssets: {
       assetsStore: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletMetaAssetsAssetItem>>, [H256]> & QueryableStorageEntry<ApiType, [H256]>;
+      metadataStore: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<Option<Bytes>>>, [H256, AccountId32]> & QueryableStorageEntry<ApiType, [H256, AccountId32]>;
       /**
        * Generic query
        **/

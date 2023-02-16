@@ -20,8 +20,15 @@
       <get-asset :transaction-running="transactionRunning" />
       <n-divider />
 
+      <!--UPDATE SINGLE ASSET-->
       <update-asset :transaction-running="transactionRunning" />
       <n-divider />
+
+      <!--REGISTER ADMIN-->
+      <add-admin
+        :transaction-running="transactionRunning"
+        @change="(val) => (transactionRunning = val)"
+      />
 
       <!--TRANSFER SINGLE ASSET-->
       <transfer-asset
@@ -40,6 +47,7 @@ import AddAsset from '@/components/meta-assets/add-asset.vue'
 import GetAsset from '@/components/meta-assets/get-asset.vue'
 import TransferAsset from '@/components/meta-assets/transfer-asset.vue'
 import UpdateAsset from '@/components/meta-assets/update-asset.vue'
+import AddAdmin from '@/components/meta-assets/add-admin.vue'
 definePageMeta({
   layout: false,
 })

@@ -6,18 +6,21 @@ import {
 } from '@polkadot/api'
 import { web3FromAddress } from '@polkadot/extension-dapp'
 
+type Meta = Record<string, any>
+
 type AssetDTO = {
   name: string
   owner: string
-  meta: string | null
 }
 type Asset = {
   name: string
   owner: string
-  meta: Record<string, any> | null
+  meta: Record<string, Meta>
 }
 
 type Assets = { hash: string; asset: Asset }[]
+
+type MetaData = { hash: string; owner: string; meta: Meta | null }[]
 
 class AssetsManager {
   // eslint-disable-next-line no-use-before-define
@@ -34,28 +37,52 @@ class AssetsManager {
     return this.instance
   }
 
-  async get(hash: string): Promise<Asset> {
+  async getAsset(hash: string): Promise<Asset> {
     const entry = await this.api.query.metaAssets.assetsStore(hash)
     const asset = entry?.toHuman() as AssetDTO
-    asset.meta = asset.meta ? JSON.parse(asset.meta) : null
-    return asset as Asset
+    const meta = await this.getAssetMeta(hash)
+    return {
+      name: asset.name,
+      owner: asset.owner,
+      meta: meta ? { [asset.owner]: meta } : {},
+    } as Asset
   }
 
-  async getMultiple(...hashes: string[]): Promise<Asset[]> {
-    const assets = await this.api.query.metaAssets.assetsStore(hashes)
-    return (assets?.toHuman() as AssetDTO[])?.map((asset) => {
-      asset.meta = asset.meta ? JSON.stringify(asset.meta) : null
-      return asset as Asset
-    })
+  async getAssetMeta(hash: string): Promise<Meta | null> {
+    const entry = await this.api.query.metaAssets.metadataStore(hash)
+    const metaJSON = entry?.toHuman() as string | null
+    return metaJSON ? JSON.parse(metaJSON) : null
   }
 
-  async getAll(): Promise<Assets> {
+  async getAllAssets(): Promise<Assets> {
+    const data = await this.getAllMetadata()
     const entries = await this.api.query.metaAssets.assetsStore.entries()
     return entries?.map((val) => {
       const key = val?.[0]?.toHuman() as [string]
       const asset = val?.[1]?.toHuman() as AssetDTO
-      asset.meta = asset.meta ? JSON.parse(asset.meta) : null
-      return { hash: key[0], asset: asset as Asset }
+      const transformed = {
+        name: asset.name,
+        owner: asset.owner,
+        meta: {},
+      } as Asset
+      const sameMeta = data.filter((m) => m.hash === key[0])!
+      sameMeta.forEach((m) => {
+        transformed.meta[m.owner] = m.meta!
+      })
+      return { hash: key[0], asset: transformed }
+    })
+  }
+
+  async getAllMetadata(): Promise<MetaData> {
+    const entries = await this.api.query.metaAssets.metadataStore.entries()
+    return entries?.map((val) => {
+      const key = val?.[0]?.toHuman() as [string, string]
+      const metaJSON = val?.[1]?.toHuman() as string | null
+      return {
+        hash: key[0],
+        owner: key[1],
+        meta: metaJSON ? JSON.parse(metaJSON) : null,
+      }
     })
   }
 
@@ -94,6 +121,25 @@ class AssetsManager {
     const injector = await web3FromAddress(address)
     return this.api.tx.metaAssets
       .updateMeta(hash, meta ? JSON.stringify(meta) : null)
+      .signAndSend(address, { signer: injector.signer }, handler)
+  }
+
+  async registerAdmin(
+    hash: string,
+    adminAddress: string,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    devAccount = false
+  ) {
+    if (devAccount) {
+      const keyring = new Keyring({ type: 'sr25519' })
+      return this.api.tx.metaAssets
+        .registerAdmin(hash, adminAddress)
+        .signAndSend(keyring.createFromUri(address), handler)
+    }
+    const injector = await web3FromAddress(address)
+    return this.api.tx.metaAssets
+      .registerAdmin(hash, adminAddress)
       .signAndSend(address, { signer: injector.signer }, handler)
   }
 

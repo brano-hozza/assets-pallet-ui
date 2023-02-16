@@ -39,6 +39,6 @@ const assetHashValidationText = computed(() =>
 const returnedAsset = ref()
 const getAsset = async () => {
   const assetManager = await $assets.getManager()
-  returnedAsset.value = await assetManager.get(assetHash.value)
+  returnedAsset.value = await assetManager.getAsset(assetHash.value)
 }
 </script>

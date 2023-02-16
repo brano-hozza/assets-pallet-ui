@@ -151,6 +151,7 @@ declare module '@polkadot/api-base/types/submittable' {
        * storage and emits an event. This function must be dispatched by a signed extrinsic.
        **/
       addAsset: AugmentedSubmittable<(assetName: Bytes | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
+      registerAdmin: AugmentedSubmittable<(hash: H256 | string | Uint8Array, adminAddress: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, AccountId32]>;
       transferAsset: AugmentedSubmittable<(hash: H256 | string | Uint8Array, destination: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, AccountId32]>;
       updateMeta: AugmentedSubmittable<(hash: H256 | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Option<Bytes>]>;
       /**

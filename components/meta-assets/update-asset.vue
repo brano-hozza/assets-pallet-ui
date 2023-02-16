@@ -7,7 +7,7 @@
   >
     <n-input
       v-model:value="assetHash"
-      :disabled="props.transactionRunning"
+      :disabled="transactionRunning"
       placeholder="Asset hash"
     />
   </n-form-item>
@@ -15,18 +15,18 @@
     <n-input
       v-model:value="propertyKey"
       style="width: 300px; margin-right: 10px"
-      :disabled="props.transactionRunning"
+      :disabled="transactionRunning"
       placeholder="Key"
     />
     <n-input
       v-model:value="propertyValue"
       style="margin-right: 10px"
-      :disabled="props.transactionRunning"
+      :disabled="transactionRunning"
       placeholder="Value"
     />
     <n-button
       type="primary"
-      :disabled="props.transactionRunning || !propertyKey || !propertyValue"
+      :disabled="transactionRunning || !propertyKey || !propertyValue"
       @click="addProperty()"
     >
       Add property
@@ -37,9 +37,10 @@
     style="width: 100%"
     type="primary"
     :disabled="
+      !selectedAccount ||
       !!assetHashValidationStatus ||
-      props.transactionRunning ||
-      assetMetadata.keys().length
+      transactionRunning ||
+      assetMetadata.size === 0
     "
     @click="updateAsset"
   >
@@ -54,7 +55,7 @@ const { $assets } = useNuxtApp()
 const accountStore = useAccountStore()
 
 const selectedAccount = computed(() => accountStore.selected)
-const props = defineProps<{
+defineProps<{
   transactionRunning: boolean
 }>()
 const emit = defineEmits(['change'])
@@ -68,8 +69,24 @@ const assetHashValidationText = computed(() =>
   assetHash.value.length === 66 ? undefined : 'Hash must have 66 hex characters'
 )
 
+watch(
+  () => assetHash.value,
+  async (hash) => {
+    if (hash.length === 66) {
+      const assetManager = await $assets.getManager()
+      const asset = await assetManager.getAsset(hash)
+      if (asset) {
+        assetMetadata.clear()
+        Object.entries(asset.meta).forEach(([_key, _value]) => {
+          // assetMetadata.set(key, value) //TODO: Check based on selected wallet
+        })
+      }
+    }
+  }
+)
+
 // Asset metdata
-const assetMetadata = ref<Record<string, string>>({})
+const assetMetadata = reactive<Map<string, string>>(new Map())
 
 const propertyKey = ref('')
 const propertyValue = ref('')
@@ -77,14 +94,14 @@ const propertyValue = ref('')
 watch(
   () => propertyKey.value,
   (key) => {
-    if (key in assetMetadata.value) {
-      propertyValue.value = assetMetadata.value[key]
+    if (assetMetadata.has(key)) {
+      propertyValue.value = assetMetadata.get(key)!
     }
   }
 )
 // Add new property
 const addProperty = () => {
-  assetMetadata.value[propertyKey.value] = propertyValue.value
+  assetMetadata.set(propertyKey.value, propertyValue.value)
   propertyKey.value = ''
   propertyValue.value = ''
 }
@@ -95,7 +112,7 @@ const updateAsset = async () => {
   const assetManager = await $assets.getManager()
   await assetManager.updateMeta(
     assetHash.value,
-    assetMetadata.value,
+    Object.fromEntries(assetMetadata),
     selectedAccount.value!.address,
     ({ status, txHash, isError, internalError }: SubmittableResult) => {
       const notificationStore = useNotificationStore()
