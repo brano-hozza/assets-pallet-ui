@@ -34,10 +34,7 @@ I was thinking that it would be possible change structure like this:
     "owner": "0x223c12313c1...", // Owner of the asset
     "name": "Nice", // Name of the asset
     "data": { // Metadata for each game
-        "personal":{ // Personal metadata shared between platforms but modifiable only by owner
-            ... // Any key:value pair
-        },
-        "shared":{ // shared between platforms modifiable by admins and owner
+        "0x223c12313c1...":{ // Personal metadata shared between platforms but modifiable only by owner
             ... // Any key:value pair
         },
         "0x121cb12a12...": { // Game administrator address
@@ -48,6 +45,6 @@ I was thinking that it would be possible change structure like this:
 }
 ```
 
-And then method for updating the meta would be `update_meta(hash: Hash, new_meta<Vec<u8>>, shared<Option<bool>>)` and we would check if hash is owner. If it isn't, then we would check if this administrator is registered in data object and then change the meta. To register administrator we first need to call `add_admin(hash: Hash, address: AccountId)` by the asset owner.
+And then method for updating the meta would be `update_meta(hash: Hash, new_meta<Vec<u8>>)` and we would check if hash is owner. If it isn't, then we would check if this administrator is registered in data object and then change the meta. To register administrator we first need to call `add_admin(hash: Hash, address: AccountId)` by the asset owner.
 
 With this approach we could give game developers ability to specify their attributes or use some of this attributes from other games.
