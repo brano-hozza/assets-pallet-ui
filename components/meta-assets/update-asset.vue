@@ -74,7 +74,10 @@ watch(
   async (hash) => {
     if (hash.length === 66) {
       const assetManager = await $assets.getManager()
-      const asset = await assetManager.getAsset(hash)
+      const asset = await assetManager.getAsset(
+        hash,
+        selectedAccount.value!.address
+      )
       if (asset) {
         assetMetadata.clear()
         Object.entries(asset.meta).forEach(([_key, _value]) => {

@@ -86,12 +86,12 @@ declare module '@polkadot/api-base/types/errors' {
       [key: string]: AugmentedError<ApiType>;
     };
     metaAssets: {
+      AlreadyRegistered: AugmentedError<ApiType>;
+      InvalidAddress: AugmentedError<ApiType>;
       InvalidHash: AugmentedError<ApiType>;
-      InvalidOwner: AugmentedError<ApiType>;
       LongNameProvided: AugmentedError<ApiType>;
-      NoneValue: AugmentedError<ApiType>;
       ShortNameProvided: AugmentedError<ApiType>;
-      StorageOverflow: AugmentedError<ApiType>;
+      Unauthorized: AugmentedError<ApiType>;
       /**
        * Generic error
        **/

@@ -296,8 +296,14 @@ declare module '@polkadot/types/lookup' {
   /** @name PalletMetaAssetsEvent (42) */
   interface PalletMetaAssetsEvent extends Enum {
     readonly isAssetWasStored: boolean;
-    readonly asAssetWasStored: ITuple<[Bytes, AccountId32]>;
-    readonly type: 'AssetWasStored';
+    readonly asAssetWasStored: ITuple<[H256, AccountId32]>;
+    readonly isAssetWasTransferred: boolean;
+    readonly asAssetWasTransferred: ITuple<[H256, AccountId32, AccountId32]>;
+    readonly isMetaUpdated: boolean;
+    readonly asMetaUpdated: ITuple<[H256, AccountId32]>;
+    readonly isAdminRegistered: boolean;
+    readonly asAdminRegistered: ITuple<[H256, AccountId32, AccountId32]>;
+    readonly type: 'AssetWasStored' | 'AssetWasTransferred' | 'MetaUpdated' | 'AdminRegistered';
   }
 
   /** @name FrameSystemPhase (43) */
@@ -676,37 +682,37 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'AddAsset' | 'TransferAsset' | 'UpdateMeta' | 'RegisterAdmin';
   }
 
-  /** @name PalletSudoError (114) */
+  /** @name PalletSudoError (115) */
   interface PalletSudoError extends Enum {
     readonly isRequireSudo: boolean;
     readonly type: 'RequireSudo';
   }
 
-  /** @name PalletTemplateError (115) */
+  /** @name PalletTemplateError (116) */
   interface PalletTemplateError extends Enum {
     readonly isNoneValue: boolean;
     readonly isStorageOverflow: boolean;
     readonly type: 'NoneValue' | 'StorageOverflow';
   }
 
-  /** @name PalletMetaAssetsAssetItem (116) */
+  /** @name PalletMetaAssetsAssetItem (117) */
   interface PalletMetaAssetsAssetItem extends Struct {
     readonly name: Bytes;
     readonly owner: AccountId32;
   }
 
-  /** @name PalletMetaAssetsError (118) */
+  /** @name PalletMetaAssetsError (119) */
   interface PalletMetaAssetsError extends Enum {
-    readonly isNoneValue: boolean;
-    readonly isStorageOverflow: boolean;
+    readonly isUnauthorized: boolean;
+    readonly isInvalidHash: boolean;
+    readonly isInvalidAddress: boolean;
     readonly isShortNameProvided: boolean;
     readonly isLongNameProvided: boolean;
-    readonly isInvalidOwner: boolean;
-    readonly isInvalidHash: boolean;
-    readonly type: 'NoneValue' | 'StorageOverflow' | 'ShortNameProvided' | 'LongNameProvided' | 'InvalidOwner' | 'InvalidHash';
+    readonly isAlreadyRegistered: boolean;
+    readonly type: 'Unauthorized' | 'InvalidHash' | 'InvalidAddress' | 'ShortNameProvided' | 'LongNameProvided' | 'AlreadyRegistered';
   }
 
-  /** @name SpRuntimeMultiSignature (120) */
+  /** @name SpRuntimeMultiSignature (121) */
   interface SpRuntimeMultiSignature extends Enum {
     readonly isEd25519: boolean;
     readonly asEd25519: SpCoreEd25519Signature;
@@ -717,34 +723,34 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Ed25519' | 'Sr25519' | 'Ecdsa';
   }
 
-  /** @name SpCoreSr25519Signature (121) */
+  /** @name SpCoreSr25519Signature (122) */
   interface SpCoreSr25519Signature extends U8aFixed {}
 
-  /** @name SpCoreEcdsaSignature (122) */
+  /** @name SpCoreEcdsaSignature (123) */
   interface SpCoreEcdsaSignature extends U8aFixed {}
 
-  /** @name FrameSystemExtensionsCheckNonZeroSender (125) */
+  /** @name FrameSystemExtensionsCheckNonZeroSender (126) */
   type FrameSystemExtensionsCheckNonZeroSender = Null;
 
-  /** @name FrameSystemExtensionsCheckSpecVersion (126) */
+  /** @name FrameSystemExtensionsCheckSpecVersion (127) */
   type FrameSystemExtensionsCheckSpecVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckTxVersion (127) */
+  /** @name FrameSystemExtensionsCheckTxVersion (128) */
   type FrameSystemExtensionsCheckTxVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckGenesis (128) */
+  /** @name FrameSystemExtensionsCheckGenesis (129) */
   type FrameSystemExtensionsCheckGenesis = Null;
 
-  /** @name FrameSystemExtensionsCheckNonce (131) */
+  /** @name FrameSystemExtensionsCheckNonce (132) */
   interface FrameSystemExtensionsCheckNonce extends Compact<u32> {}
 
-  /** @name FrameSystemExtensionsCheckWeight (132) */
+  /** @name FrameSystemExtensionsCheckWeight (133) */
   type FrameSystemExtensionsCheckWeight = Null;
 
-  /** @name PalletTransactionPaymentChargeTransactionPayment (133) */
+  /** @name PalletTransactionPaymentChargeTransactionPayment (134) */
   interface PalletTransactionPaymentChargeTransactionPayment extends Compact<u128> {}
 
-  /** @name NodeTemplateRuntimeRuntime (134) */
+  /** @name NodeTemplateRuntimeRuntime (135) */
   type NodeTemplateRuntimeRuntime = Null;
 
 } // declare module

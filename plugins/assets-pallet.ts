@@ -37,21 +37,29 @@ class AssetsManager {
     return this.instance
   }
 
-  async getAsset(hash: string): Promise<Asset> {
+  async getAsset(hash: string, adminAddress: string | null): Promise<Asset> {
     const entry = await this.api.query.metaAssets.assetsStore(hash)
     const asset = entry?.toHuman() as AssetDTO
-    const meta = await this.getAssetMeta(hash)
+    const allMeta = await this.getAllMetadata()
+    const sameMeta = allMeta.filter((m) => m.hash === hash)!
+    if (adminAddress) {
+      const adminMeta = sameMeta.find((m) => m.owner === adminAddress)
+      if (adminMeta) {
+        return {
+          name: asset.name,
+          owner: asset.owner,
+          meta: { [adminAddress]: adminMeta.meta! },
+        }
+      }
+    }
     return {
       name: asset.name,
       owner: asset.owner,
-      meta: meta ? { [asset.owner]: meta } : {},
-    } as Asset
-  }
-
-  async getAssetMeta(hash: string): Promise<Meta | null> {
-    const entry = await this.api.query.metaAssets.metadataStore(hash)
-    const metaJSON = entry?.toHuman() as string | null
-    return metaJSON ? JSON.parse(metaJSON) : null
+      meta: sameMeta.reduce((acc, m) => {
+        acc[m.owner] = m.meta!
+        return acc
+      }, {} as Record<string, Meta>),
+    }
   }
 
   async getAllAssets(): Promise<Assets> {

@@ -6,7 +6,7 @@
 import '@polkadot/api-base/types/events';
 
 import type { ApiTypes, AugmentedEvent } from '@polkadot/api-base/types';
-import type { Bytes, Null, Option, Result, Vec, u128, u32, u64 } from '@polkadot/types-codec';
+import type { Null, Option, Result, Vec, u128, u32, u64 } from '@polkadot/types-codec';
 import type { ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, H256 } from '@polkadot/types/interfaces/runtime';
 
@@ -81,7 +81,10 @@ declare module '@polkadot/api-base/types/events' {
       [key: string]: AugmentedEvent<ApiType>;
     };
     metaAssets: {
-      AssetWasStored: AugmentedEvent<ApiType, [Bytes, AccountId32]>;
+      AdminRegistered: AugmentedEvent<ApiType, [H256, AccountId32, AccountId32]>;
+      AssetWasStored: AugmentedEvent<ApiType, [H256, AccountId32]>;
+      AssetWasTransferred: AugmentedEvent<ApiType, [H256, AccountId32, AccountId32]>;
+      MetaUpdated: AugmentedEvent<ApiType, [H256, AccountId32]>;
       /**
        * Generic event
        **/

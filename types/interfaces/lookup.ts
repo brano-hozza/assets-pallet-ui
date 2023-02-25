@@ -282,7 +282,10 @@ export default {
    **/
   PalletMetaAssetsEvent: {
     _enum: {
-      AssetWasStored: '(Bytes,AccountId32)'
+      AssetWasStored: '(H256,AccountId32)',
+      AssetWasTransferred: '(H256,AccountId32,AccountId32)',
+      MetaUpdated: '(H256,AccountId32)',
+      AdminRegistered: '(H256,AccountId32,AccountId32)'
     }
   },
   /**
@@ -665,32 +668,32 @@ export default {
     }
   },
   /**
-   * Lookup114: pallet_sudo::pallet::Error<T>
+   * Lookup115: pallet_sudo::pallet::Error<T>
    **/
   PalletSudoError: {
     _enum: ['RequireSudo']
   },
   /**
-   * Lookup115: pallet_template::pallet::Error<T>
+   * Lookup116: pallet_template::pallet::Error<T>
    **/
   PalletTemplateError: {
     _enum: ['NoneValue', 'StorageOverflow']
   },
   /**
-   * Lookup116: pallet_meta_assets::pallet::AssetItem<T>
+   * Lookup117: pallet_meta_assets::pallet::AssetItem<T>
    **/
   PalletMetaAssetsAssetItem: {
     name: 'Bytes',
     owner: 'AccountId32'
   },
   /**
-   * Lookup118: pallet_meta_assets::pallet::Error<T>
+   * Lookup119: pallet_meta_assets::pallet::Error<T>
    **/
   PalletMetaAssetsError: {
-    _enum: ['NoneValue', 'StorageOverflow', 'ShortNameProvided', 'LongNameProvided', 'InvalidOwner', 'InvalidHash']
+    _enum: ['Unauthorized', 'InvalidHash', 'InvalidAddress', 'ShortNameProvided', 'LongNameProvided', 'AlreadyRegistered']
   },
   /**
-   * Lookup120: sp_runtime::MultiSignature
+   * Lookup121: sp_runtime::MultiSignature
    **/
   SpRuntimeMultiSignature: {
     _enum: {
@@ -700,43 +703,43 @@ export default {
     }
   },
   /**
-   * Lookup121: sp_core::sr25519::Signature
+   * Lookup122: sp_core::sr25519::Signature
    **/
   SpCoreSr25519Signature: '[u8;64]',
   /**
-   * Lookup122: sp_core::ecdsa::Signature
+   * Lookup123: sp_core::ecdsa::Signature
    **/
   SpCoreEcdsaSignature: '[u8;65]',
   /**
-   * Lookup125: frame_system::extensions::check_non_zero_sender::CheckNonZeroSender<T>
+   * Lookup126: frame_system::extensions::check_non_zero_sender::CheckNonZeroSender<T>
    **/
   FrameSystemExtensionsCheckNonZeroSender: 'Null',
   /**
-   * Lookup126: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
+   * Lookup127: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
    **/
   FrameSystemExtensionsCheckSpecVersion: 'Null',
   /**
-   * Lookup127: frame_system::extensions::check_tx_version::CheckTxVersion<T>
+   * Lookup128: frame_system::extensions::check_tx_version::CheckTxVersion<T>
    **/
   FrameSystemExtensionsCheckTxVersion: 'Null',
   /**
-   * Lookup128: frame_system::extensions::check_genesis::CheckGenesis<T>
+   * Lookup129: frame_system::extensions::check_genesis::CheckGenesis<T>
    **/
   FrameSystemExtensionsCheckGenesis: 'Null',
   /**
-   * Lookup131: frame_system::extensions::check_nonce::CheckNonce<T>
+   * Lookup132: frame_system::extensions::check_nonce::CheckNonce<T>
    **/
   FrameSystemExtensionsCheckNonce: 'Compact<u32>',
   /**
-   * Lookup132: frame_system::extensions::check_weight::CheckWeight<T>
+   * Lookup133: frame_system::extensions::check_weight::CheckWeight<T>
    **/
   FrameSystemExtensionsCheckWeight: 'Null',
   /**
-   * Lookup133: pallet_transaction_payment::ChargeTransactionPayment<T>
+   * Lookup134: pallet_transaction_payment::ChargeTransactionPayment<T>
    **/
   PalletTransactionPaymentChargeTransactionPayment: 'Compact<u128>',
   /**
-   * Lookup134: node_template_runtime::Runtime
+   * Lookup135: node_template_runtime::Runtime
    **/
   NodeTemplateRuntimeRuntime: 'Null'
 };

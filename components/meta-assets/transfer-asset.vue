@@ -35,7 +35,7 @@
   </n-button>
 </template>
 <script setup lang="ts">
-import { SubmittableResult } from '@polkadot/api'
+import { Keyring, SubmittableResult } from '@polkadot/api'
 import { NInput, NFormItem, NButton, NSelect } from 'naive-ui'
 
 const { $assets } = useNuxtApp()
@@ -64,7 +64,7 @@ const devAccounts = computed(() =>
   accountStore.accounts.filter((acc) => acc.dev)
 )
 
-const selectedDestination = ref()
+const selectedDestination = ref<string | null>(null)
 
 const destinationOptions = computed(() => [
   {
@@ -96,9 +96,15 @@ const destinationOptions = computed(() => [
 const transferAsset = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
+
+  let destinationAddress = selectedDestination.value!
+  if (destinationAddress.startsWith('//')) {
+    const keyring = new Keyring({ type: 'sr25519' })
+    destinationAddress = keyring.addFromUri(destinationAddress).address
+  }
   await assetManager.transfer(
     assetHash2.value,
-    selectedDestination.value,
+    destinationAddress,
     selectedAccount.value!.address,
     ({ status, txHash }: SubmittableResult) => {
       const notificationStore = useNotificationStore()
