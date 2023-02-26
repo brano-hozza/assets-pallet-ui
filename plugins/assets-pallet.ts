@@ -5,6 +5,8 @@ import {
   SubmittableResult,
 } from '@polkadot/api'
 import { web3FromAddress } from '@polkadot/extension-dapp'
+import { DispatchError } from '@polkadot/types/interfaces'
+import { ISubmittableResult } from '@polkadot/types/types'
 
 type Meta = Record<string, any>
 
@@ -35,6 +37,16 @@ class AssetsManager {
       this.instance = new AssetsManager(api)
     }
     return this.instance
+  }
+
+  getTxError(dispatchError: DispatchError): string {
+    if (dispatchError.isModule) {
+      const decoded = this.api.registry.findMetaError(dispatchError.asModule)
+      const { docs, name, section } = decoded
+      return `[${section}.${name}: ${docs.join(' ')}]`
+    } else {
+      return `[${dispatchError.toString()}]`
+    }
   }
 
   async getAsset(hash: string, adminAddress: string | null): Promise<Asset> {
@@ -117,7 +129,7 @@ class AssetsManager {
     hash: string,
     meta: Record<string, any> | null,
     address: string,
-    handler: (res: SubmittableResult) => void,
+    handler: (res: ISubmittableResult) => void,
     devAccount = false
   ) {
     if (devAccount) {

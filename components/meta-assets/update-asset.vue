@@ -48,7 +48,7 @@
   </n-button>
 </template>
 <script setup lang="ts">
-import { SubmittableResult } from '@polkadot/api'
+import { ISubmittableResult } from '@polkadot/types/types'
 import { NInput, NFormItem, NButton } from 'naive-ui'
 const { $assets } = useNuxtApp()
 
@@ -117,16 +117,18 @@ const updateAsset = async () => {
     assetHash.value,
     Object.fromEntries(assetMetadata),
     selectedAccount.value!.address,
-    ({ status, txHash, isError, internalError }: SubmittableResult) => {
+    ({ dispatchError, txHash, status }: ISubmittableResult) => {
       const notificationStore = useNotificationStore()
       notificationStore.create(
         'Transaction',
         `Transaction hash is ${txHash.toHex()}`
       )
-      if (isError) {
+      if (dispatchError) {
         notificationStore.create(
           'Transaction error',
-          `Transaction error ${internalError?.name} at blockHash ${status.asInBlock}`,
+          `Transaction error ${assetManager.getTxError(
+            dispatchError
+          )} at blockHash ${status.asInBlock}`,
           NotificationType.Error
         )
         emit('change', false)

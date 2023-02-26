@@ -682,26 +682,26 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'AddAsset' | 'TransferAsset' | 'UpdateMeta' | 'RegisterAdmin';
   }
 
-  /** @name PalletSudoError (115) */
+  /** @name PalletSudoError (116) */
   interface PalletSudoError extends Enum {
     readonly isRequireSudo: boolean;
     readonly type: 'RequireSudo';
   }
 
-  /** @name PalletTemplateError (116) */
+  /** @name PalletTemplateError (117) */
   interface PalletTemplateError extends Enum {
     readonly isNoneValue: boolean;
     readonly isStorageOverflow: boolean;
     readonly type: 'NoneValue' | 'StorageOverflow';
   }
 
-  /** @name PalletMetaAssetsAssetItem (117) */
+  /** @name PalletMetaAssetsAssetItem (118) */
   interface PalletMetaAssetsAssetItem extends Struct {
     readonly name: Bytes;
     readonly owner: AccountId32;
   }
 
-  /** @name PalletMetaAssetsError (119) */
+  /** @name PalletMetaAssetsError (120) */
   interface PalletMetaAssetsError extends Enum {
     readonly isUnauthorized: boolean;
     readonly isInvalidHash: boolean;
@@ -712,7 +712,7 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Unauthorized' | 'InvalidHash' | 'InvalidAddress' | 'ShortNameProvided' | 'LongNameProvided' | 'AlreadyRegistered';
   }
 
-  /** @name SpRuntimeMultiSignature (121) */
+  /** @name SpRuntimeMultiSignature (122) */
   interface SpRuntimeMultiSignature extends Enum {
     readonly isEd25519: boolean;
     readonly asEd25519: SpCoreEd25519Signature;
@@ -723,34 +723,34 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Ed25519' | 'Sr25519' | 'Ecdsa';
   }
 
-  /** @name SpCoreSr25519Signature (122) */
+  /** @name SpCoreSr25519Signature (123) */
   interface SpCoreSr25519Signature extends U8aFixed {}
 
-  /** @name SpCoreEcdsaSignature (123) */
+  /** @name SpCoreEcdsaSignature (124) */
   interface SpCoreEcdsaSignature extends U8aFixed {}
 
-  /** @name FrameSystemExtensionsCheckNonZeroSender (126) */
+  /** @name FrameSystemExtensionsCheckNonZeroSender (127) */
   type FrameSystemExtensionsCheckNonZeroSender = Null;
 
-  /** @name FrameSystemExtensionsCheckSpecVersion (127) */
+  /** @name FrameSystemExtensionsCheckSpecVersion (128) */
   type FrameSystemExtensionsCheckSpecVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckTxVersion (128) */
+  /** @name FrameSystemExtensionsCheckTxVersion (129) */
   type FrameSystemExtensionsCheckTxVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckGenesis (129) */
+  /** @name FrameSystemExtensionsCheckGenesis (130) */
   type FrameSystemExtensionsCheckGenesis = Null;
 
-  /** @name FrameSystemExtensionsCheckNonce (132) */
+  /** @name FrameSystemExtensionsCheckNonce (133) */
   interface FrameSystemExtensionsCheckNonce extends Compact<u32> {}
 
-  /** @name FrameSystemExtensionsCheckWeight (133) */
+  /** @name FrameSystemExtensionsCheckWeight (134) */
   type FrameSystemExtensionsCheckWeight = Null;
 
-  /** @name PalletTransactionPaymentChargeTransactionPayment (134) */
+  /** @name PalletTransactionPaymentChargeTransactionPayment (135) */
   interface PalletTransactionPaymentChargeTransactionPayment extends Compact<u128> {}
 
-  /** @name NodeTemplateRuntimeRuntime (135) */
+  /** @name NodeTemplateRuntimeRuntime (136) */
   type NodeTemplateRuntimeRuntime = Null;
 
 } // declare module
