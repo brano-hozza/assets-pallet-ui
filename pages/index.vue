@@ -21,7 +21,10 @@
       <n-divider />
 
       <!--UPDATE SINGLE ASSET-->
-      <update-asset :transaction-running="transactionRunning" />
+      <update-asset
+        :transaction-running="transactionRunning"
+        @change="(val) => (transactionRunning = val)"
+      />
       <n-divider />
 
       <!--REGISTER ADMIN-->

@@ -69,12 +69,22 @@ const addAdmin = async () => {
     assetHash.value,
     destinationAddress,
     selectedAccount.value!.address,
-    ({ status, txHash }: SubmittableResult) => {
+    ({ status, txHash, dispatchError }: SubmittableResult) => {
       const notificationStore = useNotificationStore()
       notificationStore.create(
         'Transaction',
         `Transaction hash is ${txHash.toHex()}`
       )
+      if (dispatchError) {
+        notificationStore.create(
+          'Transaction error',
+          `Transaction error ${assetManager.getTxError(
+            dispatchError
+          )} at blockHash ${status.asInBlock}`,
+          NotificationType.Error
+        )
+        emit('change', false)
+      }
       if (status.isFinalized) {
         notificationStore.create(
           'Transaction finalized',
