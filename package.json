@@ -9,6 +9,7 @@
     "generate:pnpm": "npx pnpm i --store=node_modules/.pnpm-store && npx pnpm generate",
     "generate:defs": "polkadot-types-from-defs --package meta-assets/types/interfaces --input ./types/interfaces --endpoint ./edgeware.json",
     "generate:meta": "polkadot-types-from-chain --endpoint ./edgeware.json --output ./types/interfaces",
+    "generate:edgeware": "curl -H \"Content-Type: application/json\" -d '{\"id\":\"1\", \"jsonrpc\":\"2.0\", \"method\": \"state_getMetadata\", \"params\":[]}' http://localhost:9933 > edgeware.json",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",

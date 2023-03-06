@@ -146,14 +146,13 @@ declare module '@polkadot/api-base/types/submittable' {
       [key: string]: SubmittableExtrinsicFunction<ApiType>;
     };
     metaAssets: {
-      /**
-       * An example dispatchable that takes a singles value as a parameter, writes the value to
-       * storage and emits an event. This function must be dispatched by a signed extrinsic.
-       **/
-      addAsset: AugmentedSubmittable<(assetName: Bytes | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Option<Bytes>]>;
-      registerAdmin: AugmentedSubmittable<(hash: H256 | string | Uint8Array, adminAddress: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, AccountId32]>;
-      transferAsset: AugmentedSubmittable<(hash: H256 | string | Uint8Array, destination: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, AccountId32]>;
-      updateMeta: AugmentedSubmittable<(hash: H256 | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [H256, Option<Bytes>]>;
+      addAsset: AugmentedSubmittable<(assetName: Bytes | string | Uint8Array, collection: Bytes | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Option<Bytes>]>;
+      createCollection: AugmentedSubmittable<(name: Bytes | string | Uint8Array, description: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
+      registerAdmin: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, adminAddress: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, AccountId32]>;
+      removeAdmin: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, adminAddress: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, AccountId32]>;
+      removeAsset: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256]>;
+      transferAsset: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, destination: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, AccountId32]>;
+      updateMeta: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>]>;
       /**
        * Generic tx
        **/

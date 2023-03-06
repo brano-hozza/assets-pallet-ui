@@ -38,6 +38,13 @@
         :transaction-running="transactionRunning"
         @change="(val) => (transactionRunning = val)"
       />
+
+      <!--ADD ASSET-->
+      <remove-asset
+        :transaction-running="transactionRunning"
+        @change="(val) => (transactionRunning = val)"
+      />
+      <n-divider />
     </n-space>
     <div class="filler" />
   </nuxt-layout>
@@ -47,6 +54,7 @@
 import { NSpace, NDivider } from 'naive-ui'
 import ListAssets from '@/components/meta-assets/list-assets.vue'
 import AddAsset from '@/components/meta-assets/add-asset.vue'
+import RemoveAsset from '@/components/meta-assets/remove-asset.vue'
 import GetAsset from '@/components/meta-assets/get-asset.vue'
 import TransferAsset from '@/components/meta-assets/transfer-asset.vue'
 import UpdateAsset from '@/components/meta-assets/update-asset.vue'

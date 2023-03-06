@@ -125,6 +125,24 @@ class AssetsManager {
       .signAndSend(address, { signer: injector.signer }, handler)
   }
 
+  async remove(
+    hash: string,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    devAccount = false
+  ) {
+    if (devAccount) {
+      const keyring = new Keyring({ type: 'sr25519' })
+      return this.api.tx.metaAssets
+        .removeAsset(hash)
+        .signAndSend(keyring.createFromUri(address), handler)
+    }
+    const injector = await web3FromAddress(address)
+    return this.api.tx.metaAssets
+      .removeAsset(hash)
+      .signAndSend(address, { signer: injector.signer }, handler)
+  }
+
   async updateMeta(
     hash: string,
     meta: Record<string, any> | null,
@@ -160,6 +178,25 @@ class AssetsManager {
     const injector = await web3FromAddress(address)
     return this.api.tx.metaAssets
       .registerAdmin(hash, adminAddress)
+      .signAndSend(address, { signer: injector.signer }, handler)
+  }
+
+  async unregisterAdmin(
+    hash: string,
+    adminAddress: string,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    devAccount = false
+  ) {
+    if (devAccount) {
+      const keyring = new Keyring({ type: 'sr25519' })
+      return this.api.tx.metaAssets
+        .unregisterAdmin(hash, adminAddress)
+        .signAndSend(keyring.createFromUri(address), handler)
+    }
+    const injector = await web3FromAddress(address)
+    return this.api.tx.metaAssets
+      .unregisterAdmin(hash, adminAddress)
       .signAndSend(address, { signer: injector.signer }, handler)
   }
 
