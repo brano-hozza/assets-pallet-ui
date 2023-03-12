@@ -5,8 +5,19 @@
     </n-space>
     <n-divider />
     <n-space vertical justify="center">
+      <!--ALL COLLECTIONS-->
+      <list-collections :transaction-running="transactionRunning" />
+      <n-divider />
+
       <!--ALL ASSETS-->
       <list-assets :transaction-running="transactionRunning" />
+      <n-divider />
+
+      <!--CREATE COLLECTION-->
+      <create-collection
+        :transaction-running="transactionRunning"
+        @change="(val) => (transactionRunning = val)"
+      />
       <n-divider />
 
       <!--ADD ASSET-->
@@ -26,12 +37,6 @@
         @change="(val) => (transactionRunning = val)"
       />
       <n-divider />
-
-      <!--REGISTER ADMIN-->
-      <add-admin
-        :transaction-running="transactionRunning"
-        @change="(val) => (transactionRunning = val)"
-      />
 
       <!--TRANSFER SINGLE ASSET-->
       <transfer-asset
@@ -53,12 +58,13 @@
 <script setup lang="ts">
 import { NSpace, NDivider } from 'naive-ui'
 import ListAssets from '@/components/meta-assets/list-assets.vue'
+import ListCollections from '@/components/meta-assets/list-collections.vue'
 import AddAsset from '@/components/meta-assets/add-asset.vue'
+import CreateCollection from '@/components/meta-assets/create-collection.vue'
 import RemoveAsset from '@/components/meta-assets/remove-asset.vue'
 import GetAsset from '@/components/meta-assets/get-asset.vue'
 import TransferAsset from '@/components/meta-assets/transfer-asset.vue'
 import UpdateAsset from '@/components/meta-assets/update-asset.vue'
-import AddAdmin from '@/components/meta-assets/add-admin.vue'
 definePageMeta({
   layout: false,
 })

@@ -1,6 +1,17 @@
 <template>
   <h2>Update asset</h2>
   <n-form-item
+    label="Collection hash"
+    :validation-status="collectionHashValidationStatus"
+    :feedback="collectionHashValidationText"
+  >
+    <n-input
+      v-model:value="collectionHash"
+      :disabled="transactionRunning"
+      placeholder="Collection hash"
+    />
+  </n-form-item>
+  <n-form-item
     label="Asset hash"
     :validation-status="assetHashValidationStatus"
     :feedback="assetHashValidationText"
@@ -59,7 +70,16 @@ defineProps<{
   transactionRunning: boolean
 }>()
 const emit = defineEmits(['change'])
-
+// Collection hash
+const collectionHash = ref('')
+const collectionHashValidationStatus = computed(() =>
+  collectionHash.value.length === 66 ? undefined : 'error'
+)
+const collectionHashValidationText = computed(() =>
+  collectionHash.value.length === 66
+    ? undefined
+    : 'Hash must have 66 hex characters'
+)
 // Asset hash
 const assetHash = ref('')
 const assetHashValidationStatus = computed(() =>
@@ -70,25 +90,22 @@ const assetHashValidationText = computed(() =>
 )
 
 watch(
-  () => assetHash.value,
-  async (hash) => {
-    if (hash.length === 66) {
+  () => [assetHash.value, collectionHash.value],
+  async ([aHash, cHash]) => {
+    if (aHash.length === 66 && cHash.length === 66) {
       const assetManager = await $assets.getManager()
-      const asset = await assetManager.getAsset(
-        hash,
-        selectedAccount.value!.address
-      )
+      const asset = await assetManager.getAsset(aHash, cHash)
       if (asset) {
         assetMetadata.clear()
-        Object.entries(asset.meta).forEach(([_key, _value]) => {
-          // assetMetadata.set(key, value) //TODO: Check based on selected wallet
+        Object.entries(asset.meta).forEach(([key, value]) => {
+          assetMetadata.set(key, value)
         })
       }
     }
   }
 )
 
-// Asset metdata
+// Asset metadata
 const assetMetadata = reactive<Map<string, string>>(new Map())
 
 const propertyKey = ref('')
@@ -113,8 +130,9 @@ const addProperty = () => {
 const updateAsset = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
-  await assetManager.updateMeta(
+  await assetManager.updateAssetMeta(
     assetHash.value,
+    collectionHash.value,
     Object.fromEntries(assetMetadata),
     selectedAccount.value!.address,
     ({ dispatchError, txHash, status }: ISubmittableResult) => {

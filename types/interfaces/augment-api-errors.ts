@@ -87,10 +87,12 @@ declare module '@polkadot/api-base/types/errors' {
     };
     metaAssets: {
       AlreadyRegistered: AugmentedError<ApiType>;
-      CollectionNameExists: AugmentedError<ApiType>;
+      CollectionAlreadyExists: AugmentedError<ApiType>;
       InvalidAddress: AugmentedError<ApiType>;
       InvalidCollection: AugmentedError<ApiType>;
       InvalidHash: AugmentedError<ApiType>;
+      InvalidJson: AugmentedError<ApiType>;
+      InvalidJsonByCollectionSchema: AugmentedError<ApiType>;
       LongNameProvided: AugmentedError<ApiType>;
       ShortNameProvided: AugmentedError<ApiType>;
       Unauthorized: AugmentedError<ApiType>;

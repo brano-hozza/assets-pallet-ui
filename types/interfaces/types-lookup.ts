@@ -308,10 +308,12 @@ declare module '@polkadot/types/lookup' {
     readonly isAdminRemoved: boolean;
     readonly asAdminRemoved: ITuple<[H256, AccountId32, AccountId32]>;
     readonly isCollectionCreated: boolean;
-    readonly asCollectionCreated: ITuple<[Bytes, AccountId32]>;
+    readonly asCollectionCreated: ITuple<[H256, AccountId32]>;
+    readonly isCollectionRemoved: boolean;
+    readonly asCollectionRemoved: ITuple<[H256, AccountId32]>;
     readonly isNewAssetInCollection: boolean;
     readonly asNewAssetInCollection: ITuple<[Bytes, H256]>;
-    readonly type: 'AssetWasStored' | 'AssetWasTransferred' | 'AssetWasRemoved' | 'MetaUpdated' | 'AdminRegistered' | 'AdminRemoved' | 'CollectionCreated' | 'NewAssetInCollection';
+    readonly type: 'AssetWasStored' | 'AssetWasTransferred' | 'AssetWasRemoved' | 'MetaUpdated' | 'AdminRegistered' | 'AdminRemoved' | 'CollectionCreated' | 'CollectionRemoved' | 'NewAssetInCollection';
   }
 
   /** @name FrameSystemPhase (44) */
@@ -670,72 +672,68 @@ declare module '@polkadot/types/lookup' {
     readonly isAddAsset: boolean;
     readonly asAddAsset: {
       readonly assetName: Bytes;
-      readonly collection: Bytes;
-      readonly meta: Option<Bytes>;
+      readonly collectionHash: H256;
+      readonly meta: Bytes;
     } & Struct;
     readonly isRemoveAsset: boolean;
     readonly asRemoveAsset: {
-      readonly collection: Bytes;
-      readonly hash_: H256;
+      readonly collectionHash: H256;
+      readonly assetHash: H256;
     } & Struct;
     readonly isTransferAsset: boolean;
     readonly asTransferAsset: {
-      readonly collection: Bytes;
-      readonly hash_: H256;
+      readonly collectionHash: H256;
+      readonly assetHash: H256;
       readonly destination: AccountId32;
     } & Struct;
     readonly isUpdateMeta: boolean;
     readonly asUpdateMeta: {
-      readonly collection: Bytes;
-      readonly hash_: H256;
-      readonly meta: Option<Bytes>;
-    } & Struct;
-    readonly isRegisterAdmin: boolean;
-    readonly asRegisterAdmin: {
-      readonly collection: Bytes;
-      readonly hash_: H256;
-      readonly adminAddress: AccountId32;
-    } & Struct;
-    readonly isRemoveAdmin: boolean;
-    readonly asRemoveAdmin: {
-      readonly collection: Bytes;
-      readonly hash_: H256;
-      readonly adminAddress: AccountId32;
+      readonly collectionHash: H256;
+      readonly assetHash: H256;
+      readonly meta: Bytes;
     } & Struct;
     readonly isCreateCollection: boolean;
     readonly asCreateCollection: {
       readonly name: Bytes;
       readonly description: Bytes;
+      readonly schema: Bytes;
     } & Struct;
-    readonly type: 'AddAsset' | 'RemoveAsset' | 'TransferAsset' | 'UpdateMeta' | 'RegisterAdmin' | 'RemoveAdmin' | 'CreateCollection';
+    readonly isRemoveCollection: boolean;
+    readonly asRemoveCollection: {
+      readonly collectionHash: H256;
+    } & Struct;
+    readonly type: 'AddAsset' | 'RemoveAsset' | 'TransferAsset' | 'UpdateMeta' | 'CreateCollection' | 'RemoveCollection';
   }
 
-  /** @name PalletSudoError (116) */
+  /** @name PalletSudoError (115) */
   interface PalletSudoError extends Enum {
     readonly isRequireSudo: boolean;
     readonly type: 'RequireSudo';
   }
 
-  /** @name PalletTemplateError (117) */
+  /** @name PalletTemplateError (116) */
   interface PalletTemplateError extends Enum {
     readonly isNoneValue: boolean;
     readonly isStorageOverflow: boolean;
     readonly type: 'NoneValue' | 'StorageOverflow';
   }
 
-  /** @name PalletMetaAssetsCollection (118) */
+  /** @name PalletMetaAssetsCollection (117) */
   interface PalletMetaAssetsCollection extends Struct {
+    readonly name: Bytes;
     readonly description: Bytes;
     readonly author: AccountId32;
+    readonly schema: Bytes;
   }
 
-  /** @name PalletMetaAssetsAssetItem (120) */
+  /** @name PalletMetaAssetsAssetItem (119) */
   interface PalletMetaAssetsAssetItem extends Struct {
     readonly name: Bytes;
     readonly owner: AccountId32;
+    readonly meta: Bytes;
   }
 
-  /** @name PalletMetaAssetsError (122) */
+  /** @name PalletMetaAssetsError (120) */
   interface PalletMetaAssetsError extends Enum {
     readonly isUnauthorized: boolean;
     readonly isInvalidHash: boolean;
@@ -744,11 +742,13 @@ declare module '@polkadot/types/lookup' {
     readonly isLongNameProvided: boolean;
     readonly isAlreadyRegistered: boolean;
     readonly isInvalidCollection: boolean;
-    readonly isCollectionNameExists: boolean;
-    readonly type: 'Unauthorized' | 'InvalidHash' | 'InvalidAddress' | 'ShortNameProvided' | 'LongNameProvided' | 'AlreadyRegistered' | 'InvalidCollection' | 'CollectionNameExists';
+    readonly isCollectionAlreadyExists: boolean;
+    readonly isInvalidJson: boolean;
+    readonly isInvalidJsonByCollectionSchema: boolean;
+    readonly type: 'Unauthorized' | 'InvalidHash' | 'InvalidAddress' | 'ShortNameProvided' | 'LongNameProvided' | 'AlreadyRegistered' | 'InvalidCollection' | 'CollectionAlreadyExists' | 'InvalidJson' | 'InvalidJsonByCollectionSchema';
   }
 
-  /** @name SpRuntimeMultiSignature (124) */
+  /** @name SpRuntimeMultiSignature (122) */
   interface SpRuntimeMultiSignature extends Enum {
     readonly isEd25519: boolean;
     readonly asEd25519: SpCoreEd25519Signature;
@@ -759,34 +759,34 @@ declare module '@polkadot/types/lookup' {
     readonly type: 'Ed25519' | 'Sr25519' | 'Ecdsa';
   }
 
-  /** @name SpCoreSr25519Signature (125) */
+  /** @name SpCoreSr25519Signature (123) */
   interface SpCoreSr25519Signature extends U8aFixed {}
 
-  /** @name SpCoreEcdsaSignature (126) */
+  /** @name SpCoreEcdsaSignature (124) */
   interface SpCoreEcdsaSignature extends U8aFixed {}
 
-  /** @name FrameSystemExtensionsCheckNonZeroSender (129) */
+  /** @name FrameSystemExtensionsCheckNonZeroSender (127) */
   type FrameSystemExtensionsCheckNonZeroSender = Null;
 
-  /** @name FrameSystemExtensionsCheckSpecVersion (130) */
+  /** @name FrameSystemExtensionsCheckSpecVersion (128) */
   type FrameSystemExtensionsCheckSpecVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckTxVersion (131) */
+  /** @name FrameSystemExtensionsCheckTxVersion (129) */
   type FrameSystemExtensionsCheckTxVersion = Null;
 
-  /** @name FrameSystemExtensionsCheckGenesis (132) */
+  /** @name FrameSystemExtensionsCheckGenesis (130) */
   type FrameSystemExtensionsCheckGenesis = Null;
 
-  /** @name FrameSystemExtensionsCheckNonce (135) */
+  /** @name FrameSystemExtensionsCheckNonce (133) */
   interface FrameSystemExtensionsCheckNonce extends Compact<u32> {}
 
-  /** @name FrameSystemExtensionsCheckWeight (136) */
+  /** @name FrameSystemExtensionsCheckWeight (134) */
   type FrameSystemExtensionsCheckWeight = Null;
 
-  /** @name PalletTransactionPaymentChargeTransactionPayment (137) */
+  /** @name PalletTransactionPaymentChargeTransactionPayment (135) */
   interface PalletTransactionPaymentChargeTransactionPayment extends Compact<u128> {}
 
-  /** @name NodeTemplateRuntimeRuntime (138) */
+  /** @name NodeTemplateRuntimeRuntime (136) */
   type NodeTemplateRuntimeRuntime = Null;
 
 } // declare module

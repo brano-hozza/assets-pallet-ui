@@ -288,7 +288,8 @@ export default {
       MetaUpdated: '(H256,AccountId32)',
       AdminRegistered: '(H256,AccountId32,AccountId32)',
       AdminRemoved: '(H256,AccountId32,AccountId32)',
-      CollectionCreated: '(Bytes,AccountId32)',
+      CollectionCreated: '(H256,AccountId32)',
+      CollectionRemoved: '(H256,AccountId32)',
       NewAssetInCollection: '(Bytes,H256)'
     }
   },
@@ -646,88 +647,70 @@ export default {
     _enum: {
       add_asset: {
         assetName: 'Bytes',
-        collection: 'Bytes',
-        meta: 'Option<Bytes>',
+        collectionHash: 'H256',
+        meta: 'Bytes',
       },
       remove_asset: {
-        _alias: {
-          hash_: 'hash',
-        },
-        collection: 'Bytes',
-        hash_: 'H256',
+        collectionHash: 'H256',
+        assetHash: 'H256',
       },
       transfer_asset: {
-        _alias: {
-          hash_: 'hash',
-        },
-        collection: 'Bytes',
-        hash_: 'H256',
+        collectionHash: 'H256',
+        assetHash: 'H256',
         destination: 'AccountId32',
       },
       update_meta: {
-        _alias: {
-          hash_: 'hash',
-        },
-        collection: 'Bytes',
-        hash_: 'H256',
-        meta: 'Option<Bytes>',
-      },
-      register_admin: {
-        _alias: {
-          hash_: 'hash',
-        },
-        collection: 'Bytes',
-        hash_: 'H256',
-        adminAddress: 'AccountId32',
-      },
-      remove_admin: {
-        _alias: {
-          hash_: 'hash',
-        },
-        collection: 'Bytes',
-        hash_: 'H256',
-        adminAddress: 'AccountId32',
+        collectionHash: 'H256',
+        assetHash: 'H256',
+        meta: 'Bytes',
       },
       create_collection: {
         name: 'Bytes',
-        description: 'Bytes'
+        description: 'Bytes',
+        schema: 'Bytes',
+      },
+      remove_collection: {
+        collectionHash: 'H256'
       }
     }
   },
   /**
-   * Lookup116: pallet_sudo::pallet::Error<T>
+   * Lookup115: pallet_sudo::pallet::Error<T>
    **/
   PalletSudoError: {
     _enum: ['RequireSudo']
   },
   /**
-   * Lookup117: pallet_template::pallet::Error<T>
+   * Lookup116: pallet_template::pallet::Error<T>
    **/
   PalletTemplateError: {
     _enum: ['NoneValue', 'StorageOverflow']
   },
   /**
-   * Lookup118: pallet_meta_assets::pallet::Collection<T>
+   * Lookup117: pallet_meta_assets::pallet::Collection<T>
    **/
   PalletMetaAssetsCollection: {
+    name: 'Bytes',
     description: 'Bytes',
-    author: 'AccountId32'
+    author: 'AccountId32',
+    schema: 'Bytes'
   },
   /**
-   * Lookup120: pallet_meta_assets::pallet::AssetItem<T>
+   * Lookup119: pallet_meta_assets::pallet::AssetItem<T>
    **/
   PalletMetaAssetsAssetItem: {
     name: 'Bytes',
-    owner: 'AccountId32'
+    owner: 'AccountId32',
+    meta: 'Bytes'
   },
   /**
-   * Lookup122: pallet_meta_assets::pallet::Error<T>
+   * Lookup120: pallet_meta_assets::pallet::Error<T>
    **/
   PalletMetaAssetsError: {
-    _enum: ['Unauthorized', 'InvalidHash', 'InvalidAddress', 'ShortNameProvided', 'LongNameProvided', 'AlreadyRegistered', 'InvalidCollection', 'CollectionNameExists']
+    _enum: ['Unauthorized', 'InvalidHash', 'InvalidAddress', 'ShortNameProvided', 'LongNameProvided', 'AlreadyRegistered', 'InvalidCollection', 'CollectionAlreadyExists', 'InvalidJson', 'InvalidJsonByCollectionSchema']
   },
   /**
-   * Lookup124: sp_runtime::MultiSignature
+   * Lookup122: sp_runtime::MultiSignature
    **/
   SpRuntimeMultiSignature: {
     _enum: {
@@ -737,43 +720,43 @@ export default {
     }
   },
   /**
-   * Lookup125: sp_core::sr25519::Signature
+   * Lookup123: sp_core::sr25519::Signature
    **/
   SpCoreSr25519Signature: '[u8;64]',
   /**
-   * Lookup126: sp_core::ecdsa::Signature
+   * Lookup124: sp_core::ecdsa::Signature
    **/
   SpCoreEcdsaSignature: '[u8;65]',
   /**
-   * Lookup129: frame_system::extensions::check_non_zero_sender::CheckNonZeroSender<T>
+   * Lookup127: frame_system::extensions::check_non_zero_sender::CheckNonZeroSender<T>
    **/
   FrameSystemExtensionsCheckNonZeroSender: 'Null',
   /**
-   * Lookup130: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
+   * Lookup128: frame_system::extensions::check_spec_version::CheckSpecVersion<T>
    **/
   FrameSystemExtensionsCheckSpecVersion: 'Null',
   /**
-   * Lookup131: frame_system::extensions::check_tx_version::CheckTxVersion<T>
+   * Lookup129: frame_system::extensions::check_tx_version::CheckTxVersion<T>
    **/
   FrameSystemExtensionsCheckTxVersion: 'Null',
   /**
-   * Lookup132: frame_system::extensions::check_genesis::CheckGenesis<T>
+   * Lookup130: frame_system::extensions::check_genesis::CheckGenesis<T>
    **/
   FrameSystemExtensionsCheckGenesis: 'Null',
   /**
-   * Lookup135: frame_system::extensions::check_nonce::CheckNonce<T>
+   * Lookup133: frame_system::extensions::check_nonce::CheckNonce<T>
    **/
   FrameSystemExtensionsCheckNonce: 'Compact<u32>',
   /**
-   * Lookup136: frame_system::extensions::check_weight::CheckWeight<T>
+   * Lookup134: frame_system::extensions::check_weight::CheckWeight<T>
    **/
   FrameSystemExtensionsCheckWeight: 'Null',
   /**
-   * Lookup137: pallet_transaction_payment::ChargeTransactionPayment<T>
+   * Lookup135: pallet_transaction_payment::ChargeTransactionPayment<T>
    **/
   PalletTransactionPaymentChargeTransactionPayment: 'Compact<u128>',
   /**
-   * Lookup138: node_template_runtime::Runtime
+   * Lookup136: node_template_runtime::Runtime
    **/
   NodeTemplateRuntimeRuntime: 'Null'
 };

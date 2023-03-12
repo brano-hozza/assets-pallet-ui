@@ -4,25 +4,39 @@ import {
   WsProvider,
   SubmittableResult,
 } from '@polkadot/api'
+import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { web3FromAddress } from '@polkadot/extension-dapp'
 import { DispatchError } from '@polkadot/types/interfaces'
 import { ISubmittableResult } from '@polkadot/types/types'
 
-type Meta = Record<string, any>
-
 type AssetDTO = {
   name: string
   owner: string
+  meta: string
 }
+
+type Collection = {
+  hash: string
+  name: string
+  description: string
+  schema: Record<string, any>
+  author: string
+}
+
+type CollectionDTO = {
+  name: string
+  description: string
+  schema: string
+  author: string
+}
+
 type Asset = {
+  assetHash: string
+  collectionHash: string
   name: string
   owner: string
-  meta: Record<string, Meta>
+  meta: Record<string, any>
 }
-
-type Assets = { hash: string; asset: Asset }[]
-
-type MetaData = { hash: string; owner: string; meta: Meta | null }[]
 
 class AssetsManager {
   // eslint-disable-next-line no-use-before-define
@@ -49,174 +63,148 @@ class AssetsManager {
     }
   }
 
-  async getAsset(hash: string, adminAddress: string | null): Promise<Asset> {
-    const entry = await this.api.query.metaAssets.assetsStore(hash)
-    const asset = entry?.toHuman() as AssetDTO
-    const allMeta = await this.getAllMetadata()
-    const sameMeta = allMeta.filter((m) => m.hash === hash)!
-    if (adminAddress) {
-      const adminMeta = sameMeta.find((m) => m.owner === adminAddress)
-      if (adminMeta) {
-        return {
-          name: asset.name,
-          owner: asset.owner,
-          meta: { [adminAddress]: adminMeta.meta! },
-        }
-      }
-    }
+  async getAsset(assetHash: string, collectionHash: string): Promise<Asset> {
+    const entry = await this.api.query.metaAssets.assetsStore(
+      collectionHash,
+      assetHash
+    )
+    const dto = entry?.toHuman() as AssetDTO
     return {
-      name: asset.name,
-      owner: asset.owner,
-      meta: sameMeta.reduce((acc, m) => {
-        acc[m.owner] = m.meta!
-        return acc
-      }, {} as Record<string, Meta>),
+      assetHash,
+      collectionHash,
+      name: dto.name,
+      owner: dto.owner,
+      meta: JSON.parse(dto.meta),
     }
   }
 
-  async getAllAssets(): Promise<Assets> {
-    const data = await this.getAllMetadata()
+  async getAllAssets(): Promise<Asset[]> {
     const entries = await this.api.query.metaAssets.assetsStore.entries()
     return entries?.map((val) => {
-      const key = val?.[0]?.toHuman() as [string]
+      const key = val?.[0]?.toHuman() as [string, string]
       const asset = val?.[1]?.toHuman() as AssetDTO
-      const transformed = {
+      return {
+        assetHash: key[1],
+        collectionHash: key[0],
         name: asset.name,
         owner: asset.owner,
-        meta: {},
-      } as Asset
-      const sameMeta = data.filter((m) => m.hash === key[0])!
-      sameMeta.forEach((m) => {
-        transformed.meta[m.owner] = m.meta!
-      })
-      return { hash: key[0], asset: transformed }
-    })
-  }
-
-  async getAllMetadata(): Promise<MetaData> {
-    const entries = await this.api.query.metaAssets.metadataStore.entries()
-    return entries?.map((val) => {
-      const key = val?.[0]?.toHuman() as [string, string]
-      const metaJSON = val?.[1]?.toHuman() as string | null
-      return {
-        hash: key[0],
-        owner: key[1],
-        meta: metaJSON ? JSON.parse(metaJSON) : null,
+        meta: JSON.parse(asset.meta),
       }
     })
   }
 
-  async add(
-    asset: string,
-    address: string,
-    handler: (res: SubmittableResult) => void,
-    devAccount = false,
-    meta: Record<string, any> | null = null
-  ) {
-    if (devAccount) {
-      const keyring = new Keyring({ type: 'sr25519' })
-      return this.api.tx.metaAssets
-        .addAsset(asset, meta ? JSON.stringify(meta) : null)
-        .signAndSend(keyring.createFromUri(address), handler)
-    }
-    const injector = await web3FromAddress(address)
-    return this.api.tx.metaAssets
-      .addAsset(asset, meta ? JSON.stringify(meta) : null)
-      .signAndSend(address, { signer: injector.signer }, handler)
+  async getCollections(): Promise<Collection[]> {
+    const entries = await this.api.query.metaAssets.collectionsStore.entries()
+    return entries?.map((val) => {
+      const key = val?.[0]?.toHuman() as [string]
+      const collection = val?.[1]?.toHuman() as CollectionDTO
+      return {
+        hash: key[0],
+        name: collection.name,
+        author: collection.author,
+        description: collection.description,
+        schema: JSON.parse(collection.schema),
+      }
+    })
   }
 
-  async remove(
-    hash: string,
+  private async submitTx(
+    ext: SubmittableExtrinsic<'promise'>,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    dev = false
+  ) {
+    if (dev) {
+      const keyring = new Keyring({ type: 'sr25519' })
+      return ext.signAndSend(keyring.createFromUri(address), handler)
+    }
+    const injector = await web3FromAddress(address)
+    return ext.signAndSend(address, { signer: injector.signer }, handler)
+  }
+
+  async createCollection(
+    name: string,
+    description: string,
+    schema: Record<string, any>,
     address: string,
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
-    if (devAccount) {
-      const keyring = new Keyring({ type: 'sr25519' })
-      return this.api.tx.metaAssets
-        .removeAsset(hash)
-        .signAndSend(keyring.createFromUri(address), handler)
-    }
-    const injector = await web3FromAddress(address)
-    return this.api.tx.metaAssets
-      .removeAsset(hash)
-      .signAndSend(address, { signer: injector.signer }, handler)
+    const ext = this.api.tx.metaAssets.createCollection(
+      name,
+      description,
+      JSON.stringify(schema)
+    )
+    return await this.submitTx(ext, address, handler, devAccount)
   }
 
-  async updateMeta(
-    hash: string,
-    meta: Record<string, any> | null,
+  async removeCollection(
+    collectionHash: string,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    devAccount = false
+  ) {
+    const ext = this.api.tx.metaAssets.removeCollection(collectionHash)
+    return await this.submitTx(ext, address, handler, devAccount)
+  }
+
+  async createAsset(
+    asset: string,
+    collectionHash: string,
+    meta: Record<string, any>,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    devAccount = false
+  ) {
+    const ext = this.api.tx.metaAssets.addAsset(
+      asset,
+      collectionHash,
+      JSON.stringify(meta)
+    )
+    return await this.submitTx(ext, address, handler, devAccount)
+  }
+
+  async removeAsset(
+    assetHash: string,
+    collectionHash: string,
+    address: string,
+    handler: (res: SubmittableResult) => void,
+    devAccount = false
+  ) {
+    const ext = this.api.tx.metaAssets.removeAsset(collectionHash, assetHash)
+    return await this.submitTx(ext, address, handler, devAccount)
+  }
+
+  async updateAssetMeta(
+    assetHash: string,
+    collectionHash: string,
+    meta: Record<string, any>,
     address: string,
     handler: (res: ISubmittableResult) => void,
     devAccount = false
   ) {
-    if (devAccount) {
-      const keyring = new Keyring({ type: 'sr25519' })
-      return this.api.tx.metaAssets
-        .updateMeta(hash, meta ? JSON.stringify(meta) : null)
-        .signAndSend(keyring.createFromUri(address), handler)
-    }
-    const injector = await web3FromAddress(address)
-    return this.api.tx.metaAssets
-      .updateMeta(hash, meta ? JSON.stringify(meta) : null)
-      .signAndSend(address, { signer: injector.signer }, handler)
+    const ext = this.api.tx.metaAssets.updateMeta(
+      collectionHash,
+      assetHash,
+      JSON.stringify(meta)
+    )
+    return await this.submitTx(ext, address, handler, devAccount)
   }
 
-  async registerAdmin(
-    hash: string,
-    adminAddress: string,
-    address: string,
-    handler: (res: SubmittableResult) => void,
-    devAccount = false
-  ) {
-    if (devAccount) {
-      const keyring = new Keyring({ type: 'sr25519' })
-      return this.api.tx.metaAssets
-        .registerAdmin(hash, adminAddress)
-        .signAndSend(keyring.createFromUri(address), handler)
-    }
-    const injector = await web3FromAddress(address)
-    return this.api.tx.metaAssets
-      .registerAdmin(hash, adminAddress)
-      .signAndSend(address, { signer: injector.signer }, handler)
-  }
-
-  async unregisterAdmin(
-    hash: string,
-    adminAddress: string,
-    address: string,
-    handler: (res: SubmittableResult) => void,
-    devAccount = false
-  ) {
-    if (devAccount) {
-      const keyring = new Keyring({ type: 'sr25519' })
-      return this.api.tx.metaAssets
-        .unregisterAdmin(hash, adminAddress)
-        .signAndSend(keyring.createFromUri(address), handler)
-    }
-    const injector = await web3FromAddress(address)
-    return this.api.tx.metaAssets
-      .unregisterAdmin(hash, adminAddress)
-      .signAndSend(address, { signer: injector.signer }, handler)
-  }
-
-  async transfer(
-    hash: string,
+  async transferAsset(
+    assetHash: string,
+    collectionHash: string,
     destinationAddress: string,
     address: string,
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
-    if (devAccount) {
-      const keyring = new Keyring({ type: 'sr25519' })
-      return this.api.tx.metaAssets
-        .transferAsset(hash, destinationAddress)
-        .signAndSend(keyring.createFromUri(address), handler)
-    }
-    const injector = await web3FromAddress(address)
-    return this.api.tx.metaAssets
-      .transferAsset(hash, destinationAddress)
-      .signAndSend(address, { signer: injector.signer }, handler)
+    const ext = this.api.tx.metaAssets.transferAsset(
+      collectionHash,
+      assetHash,
+      destinationAddress
+    )
+    return await this.submitTx(ext, address, handler, devAccount)
   }
 }
 export default defineNuxtPlugin(() => {

@@ -1,6 +1,17 @@
 <template>
   <h2>Get asset</h2>
   <n-form-item
+    label="Collection hash"
+    :validation-status="collectionHashValidationStatus"
+    :feedback="collectionHashValidationText"
+  >
+    <n-input
+      v-model:value="collectionHash"
+      :disabled="transactionRunning"
+      placeholder="Collection hash"
+    />
+  </n-form-item>
+  <n-form-item
     label="Asset hash"
     :validation-status="assetHashValidationStatus"
     :feedback="assetHashValidationText"
@@ -38,7 +49,6 @@
   </n-button>
 </template>
 <script setup lang="ts">
-import { Keyring } from '@polkadot/api'
 import { ArrowBackOutlined, ArrowForwardOutlined } from '@vicons/material'
 import { NInput, NFormItem, NButton, NSwitch, NIcon } from 'naive-ui'
 const { $assets } = useNuxtApp()
@@ -49,7 +59,16 @@ const props = defineProps<{
 const accountStore = useAccountStore()
 
 const selectedAccount = computed(() => accountStore.selected)
-
+// Collection hash
+const collectionHash = ref('')
+const collectionHashValidationStatus = computed(() =>
+  collectionHash.value.length === 66 ? undefined : 'error'
+)
+const collectionHashValidationText = computed(() =>
+  collectionHash.value.length === 66
+    ? undefined
+    : 'Hash must have 66 hex characters'
+)
 // Single asset fetching
 const assetHash = ref('')
 const assetHashValidationStatus = computed(() =>
@@ -61,15 +80,10 @@ const assetHashValidationText = computed(() =>
 const includeAllMetadata = ref(false)
 const returnedAsset = ref()
 const getAsset = async () => {
-  let address = selectedAccount.value!.address
-  if (selectedAccount.value!.dev) {
-    const keyring = new Keyring({ type: 'sr25519' })
-    address = keyring.addFromUri(selectedAccount.value!.address).address
-  }
   const assetManager = await $assets.getManager()
   returnedAsset.value = await assetManager.getAsset(
-    assetHash.value,
-    includeAllMetadata.value ? address : null
+    collectionHash.value,
+    assetHash.value
   )
 }
 </script>

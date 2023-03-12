@@ -117,9 +117,8 @@ declare module '@polkadot/api-base/types/storage' {
       [key: string]: QueryableStorageEntry<ApiType>;
     };
     metaAssets: {
-      assetsStore: AugmentedQuery<ApiType, (arg1: Bytes | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletMetaAssetsAssetItem>>, [Bytes, H256]> & QueryableStorageEntry<ApiType, [Bytes, H256]>;
-      collectionsStore: AugmentedQuery<ApiType, (arg: Bytes | string | Uint8Array) => Observable<Option<PalletMetaAssetsCollection>>, [Bytes]> & QueryableStorageEntry<ApiType, [Bytes]>;
-      metadataStore: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: AccountId32 | string | Uint8Array) => Observable<Option<Option<Bytes>>>, [H256, AccountId32]> & QueryableStorageEntry<ApiType, [H256, AccountId32]>;
+      assetsStore: AugmentedQuery<ApiType, (arg1: H256 | string | Uint8Array, arg2: H256 | string | Uint8Array) => Observable<Option<PalletMetaAssetsAssetItem>>, [H256, H256]> & QueryableStorageEntry<ApiType, [H256, H256]>;
+      collectionsStore: AugmentedQuery<ApiType, (arg: H256 | string | Uint8Array) => Observable<Option<PalletMetaAssetsCollection>>, [H256]> & QueryableStorageEntry<ApiType, [H256]>;
       /**
        * Generic query
        **/

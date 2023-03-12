@@ -1,13 +1,25 @@
 <template>
   <h2>Transfer asset</h2>
   <n-form-item
-    label="Asset hash"
-    :validation-status="assetHash2ValidationStatus"
-    :feedback="assetHash2ValidationText"
+    label="Collection hash"
+    :validation-status="collectionHashValidationStatus"
+    :feedback="collectionHashValidationText"
   >
     <n-input
-      v-model:value="assetHash2"
-      :disabled="props.transactionRunning"
+      v-model:value="collectionHash"
+      :disabled="transactionRunning"
+      placeholder="Collection hash"
+    />
+  </n-form-item>
+
+  <n-form-item
+    label="Asset hash"
+    :validation-status="assetHashValidationStatus"
+    :feedback="assetHashValidationText"
+  >
+    <n-input
+      v-model:value="assetHash"
+      :disabled="transactionRunning"
       placeholder="Asset hash"
     />
   </n-form-item>
@@ -48,15 +60,23 @@ const accountStore = useAccountStore()
 
 const selectedAccount = computed(() => accountStore.selected)
 
-// Transfer asset
-const assetHash2 = ref('')
-const assetHash2ValidationStatus = computed(() =>
-  assetHash2.value.length === 66 ? undefined : 'error'
+// Collection hash
+const collectionHash = ref('')
+const collectionHashValidationStatus = computed(() =>
+  collectionHash.value.length === 66 ? undefined : 'error'
 )
-const assetHash2ValidationText = computed(() =>
-  assetHash2.value.length === 66
+const collectionHashValidationText = computed(() =>
+  collectionHash.value.length === 66
     ? undefined
     : 'Hash must have 66 hex characters'
+)
+// Transfer asset
+const assetHash = ref('')
+const assetHashValidationStatus = computed(() =>
+  assetHash.value.length === 66 ? undefined : 'error'
+)
+const assetHashValidationText = computed(() =>
+  assetHash.value.length === 66 ? undefined : 'Hash must have 66 hex characters'
 )
 
 const accounts = computed(() => accountStore.accounts.filter((acc) => !acc.dev))
@@ -102,8 +122,9 @@ const transferAsset = async () => {
     const keyring = new Keyring({ type: 'sr25519' })
     destinationAddress = keyring.addFromUri(destinationAddress).address
   }
-  await assetManager.transfer(
-    assetHash2.value,
+  await assetManager.transferAsset(
+    assetHash.value,
+    collectionHash.value,
     destinationAddress,
     selectedAccount.value!.address,
     ({ status, txHash, dispatchError }: SubmittableResult) => {

@@ -6,7 +6,7 @@
 import '@polkadot/api-base/types/submittable';
 
 import type { ApiTypes, AugmentedSubmittable, SubmittableExtrinsic, SubmittableExtrinsicFunction } from '@polkadot/api-base/types';
-import type { Bytes, Compact, Option, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
+import type { Bytes, Compact, Vec, bool, u128, u32, u64 } from '@polkadot/types-codec';
 import type { AnyNumber, IMethod, ITuple } from '@polkadot/types-codec/types';
 import type { AccountId32, Call, H256, MultiAddress } from '@polkadot/types/interfaces/runtime';
 
@@ -146,13 +146,12 @@ declare module '@polkadot/api-base/types/submittable' {
       [key: string]: SubmittableExtrinsicFunction<ApiType>;
     };
     metaAssets: {
-      addAsset: AugmentedSubmittable<(assetName: Bytes | string | Uint8Array, collection: Bytes | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Option<Bytes>]>;
-      createCollection: AugmentedSubmittable<(name: Bytes | string | Uint8Array, description: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes]>;
-      registerAdmin: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, adminAddress: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, AccountId32]>;
-      removeAdmin: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, adminAddress: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, AccountId32]>;
-      removeAsset: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256]>;
-      transferAsset: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, destination: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, AccountId32]>;
-      updateMeta: AugmentedSubmittable<(collection: Bytes | string | Uint8Array, hash: H256 | string | Uint8Array, meta: Option<Bytes> | null | Uint8Array | Bytes | string) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Option<Bytes>]>;
+      addAsset: AugmentedSubmittable<(assetName: Bytes | string | Uint8Array, collectionHash: H256 | string | Uint8Array, meta: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, H256, Bytes]>;
+      createCollection: AugmentedSubmittable<(name: Bytes | string | Uint8Array, description: Bytes | string | Uint8Array, schema: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [Bytes, Bytes, Bytes]>;
+      removeAsset: AugmentedSubmittable<(collectionHash: H256 | string | Uint8Array, assetHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, H256]>;
+      removeCollection: AugmentedSubmittable<(collectionHash: H256 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256]>;
+      transferAsset: AugmentedSubmittable<(collectionHash: H256 | string | Uint8Array, assetHash: H256 | string | Uint8Array, destination: AccountId32 | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, H256, AccountId32]>;
+      updateMeta: AugmentedSubmittable<(collectionHash: H256 | string | Uint8Array, assetHash: H256 | string | Uint8Array, meta: Bytes | string | Uint8Array) => SubmittableExtrinsic<ApiType>, [H256, H256, Bytes]>;
       /**
        * Generic tx
        **/

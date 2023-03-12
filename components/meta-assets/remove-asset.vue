@@ -1,6 +1,18 @@
 <template>
   <h2>Remove asset</h2>
   <n-form-item
+    label="Collection hash"
+    :validation-status="collectionHashValidationStatus"
+    :feedback="collectionHashValidationText"
+  >
+    <n-input
+      v-model:value="collectionHash"
+      :disabled="transactionRunning"
+      placeholder="Collection hash"
+    />
+  </n-form-item>
+
+  <n-form-item
     label="Asset hash"
     :validation-status="assetHashValidationStatus"
     :feedback="assetHashValidationText"
@@ -35,6 +47,16 @@ defineProps<{
 }>()
 const emit = defineEmits(['change'])
 
+// Collection hash
+const collectionHash = ref('')
+const collectionHashValidationStatus = computed(() =>
+  collectionHash.value.length === 66 ? undefined : 'error'
+)
+const collectionHashValidationText = computed(() =>
+  collectionHash.value.length === 66
+    ? undefined
+    : 'Hash must have 66 hex characters'
+)
 // Asset hash
 const assetHash = ref('')
 const assetHashValidationStatus = computed(() =>
@@ -48,8 +70,9 @@ const assetHashValidationText = computed(() =>
 const removeAsset = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
-  await assetManager.remove(
+  await assetManager.removeAsset(
     assetHash.value,
+    collectionHash.value,
     selectedAccount.value!.address,
     ({ dispatchError, txHash, status }: ISubmittableResult) => {
       const notificationStore = useNotificationStore()

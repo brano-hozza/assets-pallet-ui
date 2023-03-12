@@ -1,29 +1,29 @@
 <template>
-  <h2>Add asset</h2>
+  <h2>Create collection</h2>
   <n-form-item
-    label="Collection hash"
-    :validation-status="collectionHashValidationStatus"
-    :feedback="collectionHashValidationText"
+    label="Collection name"
+    :validation-status="nameValidationStatus"
+    :feedback="nameValidationText"
   >
     <n-input
-      v-model:value="collectionHash"
+      v-model:value="collectionName"
       :disabled="transactionRunning"
-      placeholder="Collection hash"
+      placeholder="Collection name"
     />
   </n-form-item>
   <n-form-item
-    label="Asset name"
-    :validation-status="assetValidationStatus"
-    :feedback="assetValidationText"
+    label="Collection description"
+    :validation-status="descriptionValidationStatus"
+    :feedback="descriptionValidationText"
   >
     <n-input
-      v-model:value="assetName"
+      v-model:value="description"
       :disabled="transactionRunning"
-      placeholder="Asset name"
+      placeholder="Collection description"
     />
   </n-form-item>
 
-  <n-form-item label="Metadata">
+  <n-form-item label="Schema for metadata">
     <n-input
       v-model:value="propertyKey"
       style="width: 300px; margin-right: 10px"
@@ -44,14 +44,17 @@
       Add property
     </n-button>
   </n-form-item>
-  <pre>{{ assetMetadata }}</pre>
+  <pre>{{ collectionSchema }}</pre>
   <n-button
     style="width: 100%"
     type="primary"
     :disabled="
-      !selectedAccount || !!assetValidationStatus || props.transactionRunning
+      !selectedAccount ||
+      !!nameValidationStatus ||
+      !!descriptionValidationStatus ||
+      props.transactionRunning
     "
-    @click="addAsset"
+    @click="addCollection"
   >
     Sign & send
   </n-button>
@@ -65,27 +68,27 @@ const props = defineProps<{
   transactionRunning: boolean
 }>()
 const emit = defineEmits(['change'])
-// Collection hash
-const collectionHash = ref('')
-const collectionHashValidationStatus = computed(() =>
-  collectionHash.value.length === 66 ? undefined : 'error'
+
+// Add new collection
+const collectionName = ref('')
+const nameValidationStatus = computed(() =>
+  collectionName.value.length > 3 ? undefined : 'error'
 )
-const collectionHashValidationText = computed(() =>
-  collectionHash.value.length === 66
-    ? undefined
-    : 'Hash must have 66 hex characters'
+const nameValidationText = computed(() =>
+  collectionName.value.length > 3 ? undefined : 'At least 4 characters'
 )
-// Add new asset
-const assetName = ref('')
-const assetValidationStatus = computed(() =>
-  assetName.value.length > 3 ? undefined : 'error'
+
+// Collection description
+const description = ref('')
+const descriptionValidationStatus = computed(() =>
+  collectionName.value.length > 3 ? undefined : 'error'
 )
-const assetValidationText = computed(() =>
-  assetName.value.length > 3 ? undefined : 'At least 4 characters'
+const descriptionValidationText = computed(() =>
+  collectionName.value.length > 3 ? undefined : 'At least 4 characters'
 )
 
 // Asset metadata
-const assetMetadata = reactive<Map<string, string>>(new Map())
+const collectionSchema = reactive<Map<string, string>>(new Map())
 
 const propertyKey = ref('')
 const propertyValue = ref('')
@@ -93,14 +96,14 @@ const propertyValue = ref('')
 watch(
   () => propertyKey.value,
   (key) => {
-    if (assetMetadata.has(key)) {
-      propertyValue.value = assetMetadata.get(key)!
+    if (collectionSchema.has(key)) {
+      propertyValue.value = collectionSchema.get(key)!
     }
   }
 )
 // Add new property
 const addProperty = () => {
-  assetMetadata.set(propertyKey.value, propertyValue.value)
+  collectionSchema.set(propertyKey.value, propertyValue.value)
   propertyKey.value = ''
   propertyValue.value = ''
 }
@@ -109,13 +112,13 @@ const accountStore = useAccountStore()
 
 const selectedAccount = computed(() => accountStore.selected)
 
-const addAsset = async () => {
+const addCollection = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
-  await assetManager.createAsset(
-    assetName.value,
-    collectionHash.value,
-    Object.fromEntries(assetMetadata),
+  await assetManager.createCollection(
+    collectionName.value,
+    description.value,
+    Object.fromEntries(collectionSchema),
     selectedAccount.value!.address,
     ({ status, txHash, dispatchError }: SubmittableResult) => {
       const notificationStore = useNotificationStore()
