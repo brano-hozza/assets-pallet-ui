@@ -1,8 +1,12 @@
 <template>
   <h2>
     Status:
-    <span v-if="winner === PLAYER.FIRST">'X' player wins</span>
-    <span v-else-if="winner === PLAYER.SECOND">'O' player wins</span>
+    <span v-if="winner === PLAYER.FIRST">
+      'X' player wins (Skin: {{ props.skin }})
+    </span>
+    <span v-else-if="winner === PLAYER.SECOND">
+      'O' player wins {{ props.skin }}
+    </span>
     <span v-else-if="winner === 'tie'">Tie</span>
   </h2>
   <canvas id="game-canvas" :height="MAX_SIZE" :width="MAX_SIZE"></canvas>
@@ -12,6 +16,9 @@
 </template>
 <script setup lang="ts">
 import { NButton } from 'naive-ui'
+const props = defineProps<{
+  skin: string
+}>()
 const context = ref<CanvasRenderingContext2D | null>(null)
 
 const MAX_SIZE = 600
@@ -152,32 +159,39 @@ const checkForWin = () => {
 
 const rerender = (ctx: CanvasRenderingContext2D) => {
   clearArea(ctx)
-  console.log('Rerender')
   for (const field of playfield.value) {
     const x = field.x + FIELD_SIZE / 2
     const y = field.y + FIELD_SIZE / 2
 
     if (field.value === PLAYER.FIRST) {
-      // TODO: Load image from chain
-      ctx.beginPath()
-      ctx.moveTo(x - FIELD_SIZE / 2 + 5, y - FIELD_SIZE / 2 + 5)
-      ctx.lineTo(x + FIELD_SIZE / 2 - 5, y + FIELD_SIZE / 2 - 5)
-      ctx.moveTo(x + FIELD_SIZE / 2 - 5, y - FIELD_SIZE / 2 + 5)
-      ctx.lineTo(x - FIELD_SIZE / 2 + 5, y + FIELD_SIZE / 2 - 5)
-      ctx.strokeStyle = '#ffffff'
-      ctx.stroke()
+      if (props.skin === 'default') {
+        ctx.beginPath()
+        ctx.moveTo(x - FIELD_SIZE / 2 + 5, y - FIELD_SIZE / 2 + 5)
+        ctx.lineTo(x + FIELD_SIZE / 2 - 5, y + FIELD_SIZE / 2 - 5)
+        ctx.moveTo(x + FIELD_SIZE / 2 - 5, y - FIELD_SIZE / 2 + 5)
+        ctx.lineTo(x - FIELD_SIZE / 2 + 5, y + FIELD_SIZE / 2 - 5)
+        ctx.strokeStyle = '#ffffff'
+        ctx.stroke()
+      } else {
+        // TODO: Load image for 'x' from chain
+      }
     } else if (field.value === PLAYER.SECOND) {
-      // TODO: Load image from chain
-      ctx.beginPath()
-      ctx.arc(x, y, FIELD_SIZE / 2 - 5, 0, Math.PI * 2)
-      ctx.strokeStyle = '#ffffff'
-      ctx.stroke()
+      if (props.skin === 'default') {
+        ctx.beginPath()
+        ctx.arc(x, y, FIELD_SIZE / 2 - 5, 0, Math.PI * 2)
+        ctx.strokeStyle = '#ffffff'
+        ctx.stroke()
+      } else {
+        // TODO: Load image for 'o' from chain
+      }
     }
   }
 }
 
 const clearArea = (ctx: CanvasRenderingContext2D) => {
   ctx.clearRect(0, 0, MAX_SIZE, MAX_SIZE)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(0, 0, MAX_SIZE, MAX_SIZE)
   // Render basic tic tac toe grid
   ctx.beginPath()
   ctx.moveTo(MAX_SIZE / 3, 0)

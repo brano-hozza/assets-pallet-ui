@@ -4,17 +4,25 @@
       <h1>Tic Tac Toe example</h1>
     </n-space>
     <n-divider />
+
+    <n-alert
+      v-if="selectedAccount === null"
+      title="No Account"
+      type="error"
+      style="width: 100%"
+    >
+      You need to select account first to load users skins.
+    </n-alert>
     <n-space
+      v-else
       vertical
       justify="center"
       align="center"
       :wrap-item="false"
       style="width: 100%"
     >
-      <game-wrapper v-if="selectedAccount" />
-      <n-alert v-else title="No Account" type="error" style="width: 100%">
-        You need to select account first to load users skins.
-      </n-alert>
+      <game-asset-select @change="onAssetChange" />
+      <game-wrapper :skin="selectedSkin" />
     </n-space>
     <div style="height: 50vh" />
   </nuxt-layout>
@@ -26,4 +34,10 @@ import GameWrapper from '@/components/game/game-wrapper.vue'
 const accountStore = useAccountStore()
 
 const selectedAccount = computed(() => accountStore.selected)
+
+const selectedSkin = ref('')
+
+const onAssetChange = (assetId: string) => {
+  selectedSkin.value = assetId
+}
 </script>
