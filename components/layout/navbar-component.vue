@@ -67,6 +67,7 @@ import {
   DarkModeTwotone as LightMode,
   MenuFilled as MenuIcon,
   HomeFilled as HomeIcon,
+  GamepadFilled as GameIcon,
 } from '@vicons/material'
 import type { MenuOption } from 'naive-ui'
 import { NIcon, NMenu, NSpace, NGrid, NGi } from 'naive-ui'
@@ -93,6 +94,18 @@ const menuOptions: MenuOption[] = [
       ),
     key: 'home',
     icon: renderIcon(HomeIcon),
+  },
+  {
+    label: () =>
+      h(
+        'a',
+        {
+          href: '/game',
+        },
+        'Game'
+      ),
+    key: 'game',
+    icon: renderIcon(GameIcon),
   },
   {
     label: () =>
