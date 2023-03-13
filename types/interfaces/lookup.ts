@@ -289,6 +289,7 @@ export default {
       AdminRegistered: '(H256,AccountId32,AccountId32)',
       AdminRemoved: '(H256,AccountId32,AccountId32)',
       CollectionCreated: '(H256,AccountId32)',
+      CollectionUpdated: '(H256,AccountId32)',
       CollectionRemoved: '(H256,AccountId32)',
       NewAssetInCollection: '(Bytes,H256)'
     }
@@ -693,7 +694,8 @@ export default {
     name: 'Bytes',
     description: 'Bytes',
     author: 'AccountId32',
-    schema: 'Bytes'
+    schema: 'Bytes',
+    itemsCount: 'u32'
   },
   /**
    * Lookup119: pallet_meta_assets::pallet::AssetItem<T>
@@ -707,7 +709,7 @@ export default {
    * Lookup120: pallet_meta_assets::pallet::Error<T>
    **/
   PalletMetaAssetsError: {
-    _enum: ['Unauthorized', 'InvalidHash', 'InvalidAddress', 'ShortNameProvided', 'LongNameProvided', 'AlreadyRegistered', 'InvalidCollection', 'CollectionAlreadyExists', 'InvalidJson', 'InvalidJsonByCollectionSchema']
+    _enum: ['Unauthorized', 'InvalidHash', 'InvalidAddress', 'ShortNameProvided', 'LongNameProvided', 'AlreadyRegistered', 'InvalidCollection', 'CollectionAlreadyExists', 'InvalidJson', 'InvalidJsonByCollectionSchema', 'SomeAssetsExists']
   },
   /**
    * Lookup122: sp_runtime::MultiSignature

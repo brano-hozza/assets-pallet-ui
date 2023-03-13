@@ -88,6 +88,7 @@ declare module '@polkadot/api-base/types/events' {
       AssetWasTransferred: AugmentedEvent<ApiType, [H256, AccountId32, AccountId32]>;
       CollectionCreated: AugmentedEvent<ApiType, [H256, AccountId32]>;
       CollectionRemoved: AugmentedEvent<ApiType, [H256, AccountId32]>;
+      CollectionUpdated: AugmentedEvent<ApiType, [H256, AccountId32]>;
       MetaUpdated: AugmentedEvent<ApiType, [H256, AccountId32]>;
       NewAssetInCollection: AugmentedEvent<ApiType, [Bytes, H256]>;
       /**

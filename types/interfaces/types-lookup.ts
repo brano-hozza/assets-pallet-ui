@@ -309,11 +309,13 @@ declare module '@polkadot/types/lookup' {
     readonly asAdminRemoved: ITuple<[H256, AccountId32, AccountId32]>;
     readonly isCollectionCreated: boolean;
     readonly asCollectionCreated: ITuple<[H256, AccountId32]>;
+    readonly isCollectionUpdated: boolean;
+    readonly asCollectionUpdated: ITuple<[H256, AccountId32]>;
     readonly isCollectionRemoved: boolean;
     readonly asCollectionRemoved: ITuple<[H256, AccountId32]>;
     readonly isNewAssetInCollection: boolean;
     readonly asNewAssetInCollection: ITuple<[Bytes, H256]>;
-    readonly type: 'AssetWasStored' | 'AssetWasTransferred' | 'AssetWasRemoved' | 'MetaUpdated' | 'AdminRegistered' | 'AdminRemoved' | 'CollectionCreated' | 'CollectionRemoved' | 'NewAssetInCollection';
+    readonly type: 'AssetWasStored' | 'AssetWasTransferred' | 'AssetWasRemoved' | 'MetaUpdated' | 'AdminRegistered' | 'AdminRemoved' | 'CollectionCreated' | 'CollectionUpdated' | 'CollectionRemoved' | 'NewAssetInCollection';
   }
 
   /** @name FrameSystemPhase (44) */
@@ -724,6 +726,7 @@ declare module '@polkadot/types/lookup' {
     readonly description: Bytes;
     readonly author: AccountId32;
     readonly schema: Bytes;
+    readonly itemsCount: u32;
   }
 
   /** @name PalletMetaAssetsAssetItem (119) */
@@ -745,7 +748,8 @@ declare module '@polkadot/types/lookup' {
     readonly isCollectionAlreadyExists: boolean;
     readonly isInvalidJson: boolean;
     readonly isInvalidJsonByCollectionSchema: boolean;
-    readonly type: 'Unauthorized' | 'InvalidHash' | 'InvalidAddress' | 'ShortNameProvided' | 'LongNameProvided' | 'AlreadyRegistered' | 'InvalidCollection' | 'CollectionAlreadyExists' | 'InvalidJson' | 'InvalidJsonByCollectionSchema';
+    readonly isSomeAssetsExists: boolean;
+    readonly type: 'Unauthorized' | 'InvalidHash' | 'InvalidAddress' | 'ShortNameProvided' | 'LongNameProvided' | 'AlreadyRegistered' | 'InvalidCollection' | 'CollectionAlreadyExists' | 'InvalidJson' | 'InvalidJsonByCollectionSchema' | 'SomeAssetsExists';
   }
 
   /** @name SpRuntimeMultiSignature (122) */

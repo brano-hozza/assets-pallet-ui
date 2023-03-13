@@ -95,6 +95,7 @@ declare module '@polkadot/api-base/types/errors' {
       InvalidJsonByCollectionSchema: AugmentedError<ApiType>;
       LongNameProvided: AugmentedError<ApiType>;
       ShortNameProvided: AugmentedError<ApiType>;
+      SomeAssetsExists: AugmentedError<ApiType>;
       Unauthorized: AugmentedError<ApiType>;
       /**
        * Generic error

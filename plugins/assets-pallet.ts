@@ -23,6 +23,7 @@ export type Collection = {
   description: string
   schema: Record<string, any>
   author: string
+  itemsCount: number
 }
 
 type CollectionDTO = {
@@ -30,6 +31,7 @@ type CollectionDTO = {
   description: string
   schema: string
   author: string
+  itemsCount: number
 }
 
 export type Asset = {
@@ -125,12 +127,14 @@ class AssetsManager {
     return entries?.map((val) => {
       const key = val?.[0]?.toHuman() as [string]
       const collection = val?.[1]?.toHuman() as CollectionDTO
+      console.log(collection)
       return {
         hash: key[0],
         name: collection.name,
         author: collection.author,
         description: collection.description,
         schema: JSON.parse(collection.schema),
+        itemsCount: collection.itemsCount,
       }
     })
   }
