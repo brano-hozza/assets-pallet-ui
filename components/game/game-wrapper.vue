@@ -53,6 +53,15 @@ watch(
   }
 )
 
+watch(
+  () => props.skin,
+  () => {
+    if (context.value) {
+      rerender(context.value as CanvasRenderingContext2D)
+    }
+  }
+)
+
 const winner = ref<PLAYER | null | 'tie'>(null)
 
 const resetGame = () => {

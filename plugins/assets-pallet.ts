@@ -93,6 +93,32 @@ class AssetsManager {
     })
   }
 
+  async getUserAssets(
+    address: string,
+    collectionHash?: string
+  ): Promise<Asset[]> {
+    let entries = await this.api.query.metaAssets.assetsStore.entries()
+    if (collectionHash)
+      entries = entries?.filter(
+        (val) => (val?.[0]?.toHuman() as [string, string])[0] === collectionHash
+      )
+    console.log(entries.length, address)
+    entries = entries?.filter(
+      (val) => (val?.[1]?.toHuman() as AssetDTO).owner === address
+    )
+    return entries?.map((val) => {
+      const key = val?.[0]?.toHuman() as [string, string]
+      const asset = val?.[1]?.toHuman() as AssetDTO
+      return {
+        assetHash: key[1],
+        collectionHash: key[0],
+        name: asset.name,
+        owner: asset.owner,
+        meta: JSON.parse(asset.meta),
+      }
+    })
+  }
+
   async getCollections(): Promise<Collection[]> {
     const entries = await this.api.query.metaAssets.collectionsStore.entries()
     return entries?.map((val) => {
