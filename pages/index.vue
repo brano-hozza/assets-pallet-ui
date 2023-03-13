@@ -43,9 +43,17 @@
         :transaction-running="transactionRunning"
         @change="(val) => (transactionRunning = val)"
       />
+      <n-divider />
 
-      <!--ADD ASSET-->
+      <!--REMOVE ASSET-->
       <remove-asset
+        :transaction-running="transactionRunning"
+        @change="(val) => (transactionRunning = val)"
+      />
+      <n-divider />
+
+      <!--REMOVE COLLECTIOM-->
+      <remove-collection
         :transaction-running="transactionRunning"
         @change="(val) => (transactionRunning = val)"
       />
@@ -62,6 +70,7 @@ import ListCollections from '@/components/meta-assets/list-collections.vue'
 import AddAsset from '@/components/meta-assets/add-asset.vue'
 import CreateCollection from '@/components/meta-assets/create-collection.vue'
 import RemoveAsset from '@/components/meta-assets/remove-asset.vue'
+import RemoveCollection from '@/components/meta-assets/remove-collection.vue'
 import GetAsset from '@/components/meta-assets/get-asset.vue'
 import TransferAsset from '@/components/meta-assets/transfer-asset.vue'
 import UpdateAsset from '@/components/meta-assets/update-asset.vue'

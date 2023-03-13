@@ -34,7 +34,7 @@
       v-model:value="propertyValue"
       style="margin-right: 10px"
       :disabled="transactionRunning"
-      placeholder="Value"
+      placeholder="Value type (string, number, boolean)"
     />
     <n-button
       type="primary"
@@ -113,39 +113,48 @@ const accountStore = useAccountStore()
 const selectedAccount = computed(() => accountStore.selected)
 
 const addCollection = async () => {
+  const notificationStore = useNotificationStore()
   emit('change', true)
   const assetManager = await $assets.getManager()
-  await assetManager.createCollection(
-    collectionName.value,
-    description.value,
-    Object.fromEntries(collectionSchema),
-    selectedAccount.value!.address,
-    ({ status, txHash, dispatchError }: SubmittableResult) => {
-      const notificationStore = useNotificationStore()
-      notificationStore.create(
-        'Transaction',
-        `Transaction hash is ${txHash.toHex()}`
-      )
-      if (dispatchError) {
+  try {
+    await assetManager.createCollection(
+      collectionName.value,
+      description.value,
+      Object.fromEntries(collectionSchema),
+      selectedAccount.value!.address,
+      ({ status, txHash, dispatchError }: SubmittableResult) => {
         notificationStore.create(
-          'Transaction error',
-          `Transaction error ${assetManager.getTxError(
-            dispatchError
-          )} at blockHash ${status.asInBlock}`,
-          NotificationType.Error
+          'Transaction',
+          `Transaction hash is ${txHash.toHex()}`
         )
-        emit('change', false)
-      }
-      if (status.isFinalized) {
-        notificationStore.create(
-          'Transaction finalized',
-          `Transaction finalized at blockHash ${status.asFinalized}`,
-          NotificationType.Success
-        )
-        emit('change', false)
-      }
-    },
-    selectedAccount.value!.dev
-  )
+        if (dispatchError) {
+          notificationStore.create(
+            'Transaction error',
+            `Transaction error ${assetManager.getTxError(
+              dispatchError
+            )} at blockHash ${status.asInBlock}`,
+            NotificationType.Error
+          )
+          emit('change', false)
+        }
+        if (status.isFinalized) {
+          notificationStore.create(
+            'Transaction finalized',
+            `Transaction finalized at blockHash ${status.asFinalized}`,
+            NotificationType.Success
+          )
+          emit('change', false)
+        }
+      },
+      selectedAccount.value!.dev
+    )
+  } catch (e) {
+    notificationStore.create(
+      'Validation error',
+      (e as Error).message,
+      NotificationType.Error
+    )
+    emit('change', false)
+  }
 }
 </script>

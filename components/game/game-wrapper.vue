@@ -1,12 +1,8 @@
 <template>
   <h2>
     Status:
-    <span v-if="winner === PLAYER.FIRST">
-      'X' player wins (Skin: {{ props.skin }})
-    </span>
-    <span v-else-if="winner === PLAYER.SECOND">
-      'O' player wins {{ props.skin }}
-    </span>
+    <span v-if="winner === PLAYER.FIRST"> 'X' player wins </span>
+    <span v-else-if="winner === PLAYER.SECOND"> 'O' player wins </span>
     <span v-else-if="winner === 'tie'">Tie</span>
   </h2>
   <canvas id="game-canvas" :height="MAX_SIZE" :width="MAX_SIZE"></canvas>
@@ -16,8 +12,9 @@
 </template>
 <script setup lang="ts">
 import { NButton } from 'naive-ui'
+import { type Asset } from '@/plugins/assets-pallet'
 const props = defineProps<{
-  skin: string
+  assetHash: string
 }>()
 const context = ref<CanvasRenderingContext2D | null>(null)
 
@@ -53,9 +50,33 @@ watch(
   }
 )
 
+const { $assets } = useNuxtApp()
+
+type TicTacAsset = Asset & {
+  meta: {
+    ipfs_x: string
+    ipfs_y: string
+  }
+}
+
+const asset = ref<TicTacAsset | null>(null)
+
 watch(
-  () => props.skin,
-  () => {
+  () => props.assetHash,
+  async (value) => {
+    if (props.assetHash === 'default') {
+      asset.value = null
+    } else {
+      const manager = await $assets.getManager()
+      const collections = await manager.getCollections()
+      const ticTacToeCollection = collections.find(
+        (collection) => collection.name === 'Tic Tac Toe'
+      )
+      if (!ticTacToeCollection) return
+      const _asset = await manager.getAsset(value, ticTacToeCollection.hash)
+      if (!_asset) return
+      asset.value = _asset as TicTacAsset
+    }
     if (context.value) {
       rerender(context.value as CanvasRenderingContext2D)
     }
@@ -173,7 +194,7 @@ const rerender = (ctx: CanvasRenderingContext2D) => {
     const y = field.y + FIELD_SIZE / 2
 
     if (field.value === PLAYER.FIRST) {
-      if (props.skin === 'default') {
+      if (!asset.value) {
         ctx.beginPath()
         ctx.moveTo(x - FIELD_SIZE / 2 + 5, y - FIELD_SIZE / 2 + 5)
         ctx.lineTo(x + FIELD_SIZE / 2 - 5, y + FIELD_SIZE / 2 - 5)
@@ -183,15 +204,19 @@ const rerender = (ctx: CanvasRenderingContext2D) => {
         ctx.stroke()
       } else {
         // TODO: Load image for 'x' from chain
+        ctx.strokeText(asset.value.meta.ipfs_x + ' (x)', x, y)
+        ctx.stroke()
       }
     } else if (field.value === PLAYER.SECOND) {
-      if (props.skin === 'default') {
+      if (!asset.value) {
         ctx.beginPath()
         ctx.arc(x, y, FIELD_SIZE / 2 - 5, 0, Math.PI * 2)
         ctx.strokeStyle = '#ffffff'
         ctx.stroke()
       } else {
         // TODO: Load image for 'o' from chain
+        ctx.strokeText(asset.value.meta.ipfs_y + ' (o)', x, y)
+        ctx.stroke()
       }
     }
   }

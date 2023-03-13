@@ -1,5 +1,5 @@
 <template>
-  <h2>Assets pallet state</h2>
+  <h2>Assets</h2>
   <pre>{{ allAssets }}</pre>
 </template>
 <script setup lang="ts">

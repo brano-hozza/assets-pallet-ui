@@ -22,7 +22,7 @@
       style="width: 100%"
     >
       <game-asset-select @change="onAssetChange" />
-      <game-wrapper :skin="selectedSkin" />
+      <game-wrapper :asset-hash="selectedAsset" />
     </n-space>
     <div style="height: 50vh" />
   </nuxt-layout>
@@ -35,9 +35,9 @@ const accountStore = useAccountStore()
 
 const selectedAccount = computed(() => accountStore.selected)
 
-const selectedSkin = ref('')
+const selectedAsset = ref('default')
 
-const onAssetChange = (assetId: string) => {
-  selectedSkin.value = assetId
+const onAssetChange = (assetHash: string) => {
+  selectedAsset.value = assetHash
 }
 </script>

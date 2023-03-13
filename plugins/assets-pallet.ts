@@ -8,6 +8,8 @@ import { SubmittableExtrinsic } from '@polkadot/api-base/types'
 import { web3FromAddress } from '@polkadot/extension-dapp'
 import { DispatchError } from '@polkadot/types/interfaces'
 import { ISubmittableResult } from '@polkadot/types/types'
+import Ajv, { JSONSchemaType } from 'ajv'
+const ajv = new Ajv()
 
 type AssetDTO = {
   name: string
@@ -15,7 +17,7 @@ type AssetDTO = {
   meta: string
 }
 
-type Collection = {
+export type Collection = {
   hash: string
   name: string
   description: string
@@ -30,7 +32,7 @@ type CollectionDTO = {
   author: string
 }
 
-type Asset = {
+export type Asset = {
   assetHash: string
   collectionHash: string
   name: string
@@ -102,7 +104,6 @@ class AssetsManager {
       entries = entries?.filter(
         (val) => (val?.[0]?.toHuman() as [string, string])[0] === collectionHash
       )
-    console.log(entries.length, address)
     entries = entries?.filter(
       (val) => (val?.[1]?.toHuman() as AssetDTO).owner === address
     )
@@ -156,10 +157,29 @@ class AssetsManager {
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
+    const validSchema = {} as Record<
+      string,
+      { type: 'string' | 'number' | 'boolean' }
+    >
+    for (const key in schema) {
+      if (
+        schema[key] === 'string' ||
+        schema[key] === 'number' ||
+        schema[key] === 'boolean'
+      ) {
+        validSchema[key] = { type: schema[key] }
+      } else {
+        throw new Error('Invalid schema')
+      }
+    }
     const ext = this.api.tx.metaAssets.createCollection(
       name,
       description,
-      JSON.stringify(schema)
+      JSON.stringify({
+        type: 'object',
+        properties: validSchema,
+        additionalProperties: false,
+      } as JSONSchemaType<Record<string, any>>)
     )
     return await this.submitTx(ext, address, handler, devAccount)
   }
@@ -182,6 +202,23 @@ class AssetsManager {
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
+    // Because Valico is not running on the node, we need to validate the schema
+    // ourselves
+    const collection = await this.api.query.metaAssets.collectionsStore(
+      collectionHash
+    )
+    if (!collection) {
+      throw new Error('Collection does not exist')
+    }
+    const schema = JSON.parse(
+      (collection?.toHuman() as CollectionDTO)?.schema
+    ) as JSONSchemaType<Record<string, any>>
+    const validate = ajv.compile(schema)
+    const valid = validate(meta)
+    if (!valid) {
+      throw new Error(validate.errors?.map((e) => e.message).join(', '))
+    }
+
     const ext = this.api.tx.metaAssets.addAsset(
       asset,
       collectionHash,
