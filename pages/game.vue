@@ -11,11 +11,19 @@
       :wrap-item="false"
       style="width: 100%"
     >
-      <game-wrapper />
+      <game-wrapper v-if="selectedAccount" />
+      <n-alert v-else title="No Account" type="error" style="width: 100%">
+        You need to select account first to load users skins.
+      </n-alert>
     </n-space>
+    <div style="height: 50vh" />
   </nuxt-layout>
 </template>
 <script setup lang="ts">
-import { NSpace, NDivider } from 'naive-ui'
+import { NSpace, NDivider, NAlert } from 'naive-ui'
 import GameWrapper from '@/components/game/game-wrapper.vue'
+
+const accountStore = useAccountStore()
+
+const selectedAccount = computed(() => accountStore.selected)
 </script>
