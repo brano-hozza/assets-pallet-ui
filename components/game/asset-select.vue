@@ -30,6 +30,10 @@ onMounted(async () => {
     return
   }
   const manager = await $assets.getManager()
+  if (!manager) {
+    console.log('No assets manager found')
+    return
+  }
   const collections = await manager.getCollections()
   const ticTacToeCollection = collections.find(
     (collection) => collection.name === 'Tic Tac Toe'

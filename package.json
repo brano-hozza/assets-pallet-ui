@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@css-render/vue3-ssr": "^0.15.11",
+    "@kodadot1/minipfs": "^0.2.0-rc.0",
     "@kodadot1/sub-api": "^0.1.1-alpha.5",
     "@paraspell/sdk": "^1.0.1",
     "@pinia/nuxt": "^0.4.6",

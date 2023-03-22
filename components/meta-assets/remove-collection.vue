@@ -50,6 +50,10 @@ const collectionHashValidationText = computed(() =>
 const removeCollection = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
   await assetManager.removeCollection(
     collectionHash.value,
     selectedAccount.value!.address,

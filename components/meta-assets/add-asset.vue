@@ -113,6 +113,10 @@ const addAsset = async () => {
   const notificationStore = useNotificationStore()
   emit('change', true)
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
   try {
     await assetManager.createAsset(
       assetName.value,

@@ -70,6 +70,10 @@ const assetHashValidationText = computed(() =>
 const removeAsset = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
   await assetManager.removeAsset(
     assetHash.value,
     collectionHash.value,

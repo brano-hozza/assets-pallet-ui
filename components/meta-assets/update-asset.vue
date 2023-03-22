@@ -94,6 +94,10 @@ watch(
   async ([aHash, cHash]) => {
     if (aHash.length === 66 && cHash.length === 66) {
       const assetManager = await $assets.getManager()
+      if (!assetManager) {
+        console.log('No assets manager found')
+        return
+      }
       const asset = await assetManager.getAsset(aHash, cHash)
       if (asset) {
         assetMetadata.clear()
@@ -130,6 +134,10 @@ const addProperty = () => {
 const updateAsset = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
   await assetManager.updateAssetMeta(
     assetHash.value,
     collectionHash.value,

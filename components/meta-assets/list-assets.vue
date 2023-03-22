@@ -12,6 +12,10 @@ const props = defineProps<{
 const allAssets = ref({})
 const resolveAssets = async () => {
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
   allAssets.value = await assetManager.getAllAssets()
 }
 

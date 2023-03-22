@@ -48,11 +48,18 @@ class AssetsManager {
   // eslint-disable-next-line no-useless-constructor
   private constructor(private api: ApiPromise) {}
 
-  public static async get(url = 'ws://localhost:9944'): Promise<AssetsManager> {
-    if (!this.instance) {
-      const wsProvider = new WsProvider(url)
-      const api = await ApiPromise.create({ provider: wsProvider })
-      this.instance = new AssetsManager(api)
+  public static async get(
+    url = 'ws://localhost:9944'
+  ): Promise<AssetsManager | null> {
+    try {
+      if (!this.instance) {
+        const wsProvider = new WsProvider(url)
+        const api = await ApiPromise.create({ provider: wsProvider })
+        this.instance = new AssetsManager(api)
+      }
+    } catch (e) {
+      console.error(e)
+      return null
     }
     return this.instance
   }

@@ -116,6 +116,10 @@ const destinationOptions = computed(() => [
 const transferAsset = async () => {
   emit('change', true)
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
 
   let destinationAddress = selectedDestination.value!
   if (destinationAddress.startsWith('//')) {

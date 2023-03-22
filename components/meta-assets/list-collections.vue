@@ -12,6 +12,10 @@ const props = defineProps<{
 const collections = ref({})
 const resolveCollections = async () => {
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
   collections.value = await assetManager.getCollections()
 }
 

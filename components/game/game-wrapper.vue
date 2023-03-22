@@ -12,7 +12,9 @@
 </template>
 <script setup lang="ts">
 import { NButton } from 'naive-ui'
+import { $obtain } from '@kodadot1/minipfs'
 import { type Asset } from '@/plugins/assets-pallet'
+
 const props = defineProps<{
   assetHash: string
 }>()
@@ -55,11 +57,13 @@ const { $assets } = useNuxtApp()
 type TicTacAsset = Asset & {
   meta: {
     ipfs_x: string
-    ipfs_y: string
+    ipfs_o: string
   }
 }
 
 const asset = ref<TicTacAsset | null>(null)
+const xImage = ref<CanvasImageSource | null>(null)
+const oImage = ref<CanvasImageSource | null>(null)
 
 watch(
   () => props.assetHash,
@@ -68,7 +72,12 @@ watch(
       asset.value = null
     } else {
       const manager = await $assets.getManager()
+      if (!manager) {
+        console.log('No assets manager found')
+        return
+      }
       const collections = await manager.getCollections()
+
       const ticTacToeCollection = collections.find(
         (collection) => collection.name === 'Tic Tac Toe'
       )
@@ -76,6 +85,29 @@ watch(
       const _asset = await manager.getAsset(value, ticTacToeCollection.hash)
       if (!_asset) return
       asset.value = _asset as TicTacAsset
+      const xUrl: Blob | null = await $obtain(asset.value.meta.ipfs_x, [
+        'infura_kodadot1',
+      ])
+      const oUrl: Blob | null = await $obtain(asset.value.meta.ipfs_o, [
+        'infura_kodadot1',
+      ])
+      console.log(xUrl, oUrl)
+      if (!xUrl || !oUrl) return
+      xImage.value = new Image()
+      xImage.value.src = URL.createObjectURL(xUrl)
+      xImage.value.addEventListener('load', () => {
+        if (context.value) {
+          rerender(context.value as CanvasRenderingContext2D)
+        }
+      })
+
+      oImage.value = new Image()
+      oImage.value.src = URL.createObjectURL(oUrl)
+      oImage.value.addEventListener('load', () => {
+        if (context.value) {
+          rerender(context.value as CanvasRenderingContext2D)
+        }
+      })
     }
     if (context.value) {
       rerender(context.value as CanvasRenderingContext2D)
@@ -194,7 +226,7 @@ const rerender = (ctx: CanvasRenderingContext2D) => {
     const y = field.y + FIELD_SIZE / 2
 
     if (field.value === PLAYER.FIRST) {
-      if (!asset.value) {
+      if (!asset.value || !xImage.value) {
         ctx.beginPath()
         ctx.moveTo(x - FIELD_SIZE / 2 + 5, y - FIELD_SIZE / 2 + 5)
         ctx.lineTo(x + FIELD_SIZE / 2 - 5, y + FIELD_SIZE / 2 - 5)
@@ -203,20 +235,28 @@ const rerender = (ctx: CanvasRenderingContext2D) => {
         ctx.strokeStyle = '#ffffff'
         ctx.stroke()
       } else {
-        // TODO: Load image for 'x' from chain
-        ctx.strokeText(asset.value.meta.ipfs_x + ' (x)', x, y)
-        ctx.stroke()
+        ctx.drawImage(
+          xImage.value as CanvasImageSource,
+          x - FIELD_SIZE / 2,
+          y - FIELD_SIZE / 2,
+          FIELD_SIZE,
+          FIELD_SIZE
+        )
       }
     } else if (field.value === PLAYER.SECOND) {
-      if (!asset.value) {
+      if (!asset.value || !oImage.value) {
         ctx.beginPath()
         ctx.arc(x, y, FIELD_SIZE / 2 - 5, 0, Math.PI * 2)
         ctx.strokeStyle = '#ffffff'
         ctx.stroke()
       } else {
-        // TODO: Load image for 'o' from chain
-        ctx.strokeText(asset.value.meta.ipfs_y + ' (o)', x, y)
-        ctx.stroke()
+        ctx.drawImage(
+          oImage.value as CanvasImageSource,
+          x - FIELD_SIZE / 2,
+          y - FIELD_SIZE / 2,
+          FIELD_SIZE,
+          FIELD_SIZE
+        )
       }
     }
   }

@@ -81,6 +81,10 @@ const includeAllMetadata = ref(false)
 const returnedAsset = ref()
 const getAsset = async () => {
   const assetManager = await $assets.getManager()
+  if (!assetManager) {
+    console.log('No assets manager found')
+    return
+  }
   returnedAsset.value = await assetManager.getAsset(
     collectionHash.value,
     assetHash.value
