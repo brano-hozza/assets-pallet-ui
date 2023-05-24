@@ -3,6 +3,7 @@
     <n-select
       :options="playerAssets"
       default-value="default"
+      :disabled="playerAssets.length === 1"
       @update:value="$emit('change', $event)"
     />
   </n-card>
@@ -10,7 +11,9 @@
 <script setup lang="ts">
 import { Keyring } from '@polkadot/api'
 import { NSelect, NCard } from 'naive-ui'
+import { AssetsManager } from 'meta-assets/plugins/assets-pallet'
 const { $assets } = useNuxtApp()
+const notificationStore = useNotificationStore()
 
 const accountStore = useAccountStore()
 
@@ -29,16 +32,21 @@ onMounted(async () => {
   if (selectedAccount.value === null) {
     return
   }
-  const manager = await $assets.getManager()
-  if (!manager) {
-    console.log('No assets manager found')
-    return
-  }
-  const collections = await manager.getCollections()
-  const ticTacToeCollection = collections.find(
-    (collection) => collection.name === 'Tic Tac Toe'
+
+  notificationStore.create(
+    'Asset select',
+    'Fetching collections...',
+    NotificationType.Info
   )
-  if (ticTacToeCollection) {
+  const manager: AssetsManager = $assets.getManager()
+  try {
+    const collections = await manager.getCollections()
+    const ticTacToeCollection = collections.find(
+      (collection) => collection.name === 'tic-tac-toe'
+    )
+    if (!ticTacToeCollection) {
+      throw new Error('No tic-tac-toe collection found')
+    }
     const keyring = new Keyring({ type: 'sr25519' })
     const address = selectedAccount.value.dev
       ? keyring.createFromUri(selectedAccount.value.address).address
@@ -47,18 +55,20 @@ onMounted(async () => {
       address,
       ticTacToeCollection.hash
     )
-    if (assets.length === 0) {
-      console.log('No assets found')
-      return
-    }
     playerAssets.value.push(
       ...assets.map((asset) => ({
         label: asset.name,
         value: asset.assetHash,
       }))
     )
-  } else {
-    console.log('No collection found')
+  } catch (e) {
+    if (e instanceof Error) {
+      notificationStore.create(
+        'Asset select',
+        'Error fetching assets: ' + e.message,
+        NotificationType.Error
+      )
+    }
   }
 })
 </script>

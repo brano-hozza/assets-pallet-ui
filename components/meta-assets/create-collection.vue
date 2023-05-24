@@ -60,10 +60,9 @@
   </n-button>
 </template>
 <script setup lang="ts">
-import { SubmittableResult } from '@polkadot/api'
+import type { SubmittableResult } from '@polkadot/api'
 import { NInput, NFormItem, NButton } from 'naive-ui'
 
-const { $assets } = useNuxtApp()
 const props = defineProps<{
   transactionRunning: boolean
 }>()
@@ -112,14 +111,11 @@ const accountStore = useAccountStore()
 
 const selectedAccount = computed(() => accountStore.selected)
 
+const { $assets } = useNuxtApp()
 const addCollection = async () => {
   const notificationStore = useNotificationStore()
   emit('change', true)
   const assetManager = await $assets.getManager()
-  if (!assetManager) {
-    console.log('No assets manager found')
-    return
-  }
   try {
     await assetManager.createCollection(
       collectionName.value,
@@ -153,11 +149,13 @@ const addCollection = async () => {
       selectedAccount.value!.dev
     )
   } catch (e) {
-    notificationStore.create(
-      'Validation error',
-      (e as Error).message,
-      NotificationType.Error
-    )
+    if (e instanceof Error) {
+      notificationStore.create(
+        'Create collection error',
+        e.message,
+        NotificationType.Error
+      )
+    }
     emit('change', false)
   }
 }

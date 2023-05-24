@@ -19,7 +19,7 @@
     "
     @click="removeCollection"
   >
-    Remove asset
+    Remove collection
   </n-button>
 </template>
 <script setup lang="ts">

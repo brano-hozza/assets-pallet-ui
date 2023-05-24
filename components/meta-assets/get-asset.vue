@@ -22,18 +22,6 @@
       placeholder="Asset hash"
     />
   </n-form-item>
-  <n-form-item label="Metadata:">
-    <n-switch v-model:value="includeAllMetadata">
-      <template #unchecked> Only mine </template>
-      <template #unchecked-icon>
-        <n-icon :component="ArrowForwardOutlined" />
-      </template>
-      <template #checked> Include all </template>
-      <template #checked-icon>
-        <n-icon :component="ArrowBackOutlined" />
-      </template>
-    </n-switch>
-  </n-form-item>
   <pre v-if="returnedAsset">{{ returnedAsset }}</pre>
   <n-button
     style="width: 100%"
@@ -49,8 +37,7 @@
   </n-button>
 </template>
 <script setup lang="ts">
-import { ArrowBackOutlined, ArrowForwardOutlined } from '@vicons/material'
-import { NInput, NFormItem, NButton, NSwitch, NIcon } from 'naive-ui'
+import { NInput, NFormItem, NButton } from 'naive-ui'
 const { $assets } = useNuxtApp()
 const props = defineProps<{
   transactionRunning: boolean
@@ -77,7 +64,6 @@ const assetHashValidationStatus = computed(() =>
 const assetHashValidationText = computed(() =>
   assetHash.value.length === 66 ? undefined : 'Hash must have 66 hex characters'
 )
-const includeAllMetadata = ref(false)
 const returnedAsset = ref()
 const getAsset = async () => {
   const assetManager = await $assets.getManager()

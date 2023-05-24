@@ -7,16 +7,23 @@ const { $assets } = useNuxtApp()
 const props = defineProps<{
   transactionRunning: boolean
 }>()
+const notificationStore = useNotificationStore()
 
 // All assets
 const collections = ref({})
 const resolveCollections = async () => {
   const assetManager = await $assets.getManager()
-  if (!assetManager) {
-    console.log('No assets manager found')
-    return
-  }
+  notificationStore.create(
+    'Collections',
+    'Fetching collections...',
+    NotificationType.Info
+  )
   collections.value = await assetManager.getCollections()
+  notificationStore.create(
+    'Collections',
+    'Collections fetched!',
+    NotificationType.Success
+  )
 }
 
 watch(

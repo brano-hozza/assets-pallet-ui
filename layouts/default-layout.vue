@@ -49,6 +49,9 @@ const createNotification = (notification: Notification) => {
 watch(
   () => notificationStore.notifications,
   (values) => {
+    if (values.length === 0) {
+      $notifications.destroyAll()
+    }
     values.forEach((notification) => {
       !notification.showed && createNotification(notification)
     })

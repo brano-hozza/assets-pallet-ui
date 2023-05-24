@@ -11,6 +11,14 @@ import { ISubmittableResult } from '@polkadot/types/types'
 import Ajv, { JSONSchemaType } from 'ajv'
 const ajv = new Ajv()
 
+export type Asset = {
+  assetHash: string
+  collectionHash: string
+  name: string
+  owner: string
+  meta: Record<string, any>
+}
+
 type AssetDTO = {
   name: string
   owner: string
@@ -34,39 +42,35 @@ type CollectionDTO = {
   itemsCount: number
 }
 
-export type Asset = {
-  assetHash: string
-  collectionHash: string
-  name: string
-  owner: string
-  meta: Record<string, any>
-}
-
-class AssetsManager {
+export class AssetsManager {
   // eslint-disable-next-line no-use-before-define
   private static instance: AssetsManager | null = null
-  // eslint-disable-next-line no-useless-constructor
-  private constructor(private api: ApiPromise) {}
+  private api: ApiPromise | null = null
 
-  public static async get(
-    url = 'ws://localhost:9944'
-  ): Promise<AssetsManager | null> {
-    try {
-      if (!this.instance) {
-        const wsProvider = new WsProvider(url)
-        const api = await ApiPromise.create({ provider: wsProvider })
-        this.instance = new AssetsManager(api)
-      }
-    } catch (e) {
-      console.error(e)
-      return null
+  private constructor(_api: Promise<ApiPromise>) {
+    this.loadApi(_api)
+  }
+
+  private loadApi = async (_api: Promise<ApiPromise>): Promise<void> => {
+    this.api = await _api
+  }
+
+  public static get(
+    url: string = (import.meta.env.VITE_NODE_WS as string) ??
+      'ws://localhost:9944'
+  ): AssetsManager {
+    if (!this.instance) {
+      const wsProvider = new WsProvider(url)
+      const api = ApiPromise.create({ provider: wsProvider })
+      this.instance = new AssetsManager(api)
     }
+
     return this.instance
   }
 
   getTxError(dispatchError: DispatchError): string {
     if (dispatchError.isModule) {
-      const decoded = this.api.registry.findMetaError(dispatchError.asModule)
+      const decoded = this.api!.registry.findMetaError(dispatchError.asModule)
       const { docs, name, section } = decoded
       return `[${section}.${name}: ${docs.join(' ')}]`
     } else {
@@ -75,6 +79,7 @@ class AssetsManager {
   }
 
   async getAsset(assetHash: string, collectionHash: string): Promise<Asset> {
+    while (!this.api) await new Promise((resolve) => setTimeout(resolve, 100))
     const entry = await this.api.query.metaAssets.assetsStore(
       collectionHash,
       assetHash
@@ -90,6 +95,7 @@ class AssetsManager {
   }
 
   async getAllAssets(): Promise<Asset[]> {
+    while (!this.api) await new Promise((resolve) => setTimeout(resolve, 100))
     const entries = await this.api.query.metaAssets.assetsStore.entries()
     return entries?.map((val) => {
       const key = val?.[0]?.toHuman() as [string, string]
@@ -108,6 +114,7 @@ class AssetsManager {
     address: string,
     collectionHash?: string
   ): Promise<Asset[]> {
+    while (!this.api) await new Promise((resolve) => setTimeout(resolve, 100))
     let entries = await this.api.query.metaAssets.assetsStore.entries()
     if (collectionHash)
       entries = entries?.filter(
@@ -130,11 +137,11 @@ class AssetsManager {
   }
 
   async getCollections(): Promise<Collection[]> {
+    while (!this.api) await new Promise((resolve) => setTimeout(resolve, 100))
     const entries = await this.api.query.metaAssets.collectionsStore.entries()
     return entries?.map((val) => {
       const key = val?.[0]?.toHuman() as [string]
       const collection = val?.[1]?.toHuman() as CollectionDTO
-      console.log(collection)
       return {
         hash: key[0],
         name: collection.name,
@@ -151,7 +158,7 @@ class AssetsManager {
     address: string,
     handler: (res: SubmittableResult) => void,
     dev = false
-  ) {
+  ): Promise<() => void> {
     if (dev) {
       const keyring = new Keyring({ type: 'sr25519' })
       return ext.signAndSend(keyring.createFromUri(address), handler)
@@ -168,6 +175,7 @@ class AssetsManager {
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
+    if (!this.api) return Promise.reject(new Error('Api not loaded'))
     const validSchema = {} as Record<
       string,
       { type: 'string' | 'number' | 'boolean' }
@@ -190,7 +198,8 @@ class AssetsManager {
         type: 'object',
         properties: validSchema,
         additionalProperties: false,
-      } as JSONSchemaType<Record<string, any>>)
+        required: Object.keys(validSchema),
+      })
     )
     return await this.submitTx(ext, address, handler, devAccount)
   }
@@ -201,6 +210,7 @@ class AssetsManager {
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
+    if (!this.api) return Promise.reject(new Error('Api not loaded'))
     const ext = this.api.tx.metaAssets.removeCollection(collectionHash)
     return await this.submitTx(ext, address, handler, devAccount)
   }
@@ -213,6 +223,7 @@ class AssetsManager {
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
+    if (!this.api) return Promise.reject(new Error('Api not loaded'))
     // Because Valico is not running on the node, we need to validate the schema
     // ourselves
     const collection = await this.api.query.metaAssets.collectionsStore(
@@ -245,6 +256,7 @@ class AssetsManager {
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
+    if (!this.api) return Promise.reject(new Error('Api not loaded'))
     const ext = this.api.tx.metaAssets.removeAsset(collectionHash, assetHash)
     return await this.submitTx(ext, address, handler, devAccount)
   }
@@ -257,6 +269,25 @@ class AssetsManager {
     handler: (res: ISubmittableResult) => void,
     devAccount = false
   ) {
+    if (!this.api) return Promise.reject(new Error('Api not loaded'))
+    // Because Valico is not running on the node, we need to validate the schema
+    // ourselves
+    const collection = await this.api.query.metaAssets.collectionsStore(
+      collectionHash
+    )
+    if (!collection) {
+      throw new Error('Collection does not exist')
+    }
+    const schema = JSON.parse(
+      (collection?.toHuman() as CollectionDTO)?.schema
+    ) as JSONSchemaType<Record<string, any>>
+    const validate = ajv.compile(schema)
+    const valid = validate(meta)
+    if (!valid) {
+      throw new Error(validate.errors?.map((e) => e.message).join(', '))
+    }
+
+    // Update the meta
     const ext = this.api.tx.metaAssets.updateMeta(
       collectionHash,
       assetHash,
@@ -273,6 +304,7 @@ class AssetsManager {
     handler: (res: SubmittableResult) => void,
     devAccount = false
   ) {
+    if (!this.api) return Promise.reject(new Error('Api not loaded'))
     const ext = this.api.tx.metaAssets.transferAsset(
       collectionHash,
       assetHash,

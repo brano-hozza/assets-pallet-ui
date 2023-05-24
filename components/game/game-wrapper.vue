@@ -13,7 +13,9 @@
 <script setup lang="ts">
 import { NButton } from 'naive-ui'
 import { $obtain } from '@kodadot1/minipfs'
-import { type Asset } from '@/plugins/assets-pallet'
+import { type Asset, AssetsManager } from '@/plugins/assets-pallet'
+
+const notificationStore = useNotificationStore()
 
 const props = defineProps<{
   assetHash: string
@@ -71,15 +73,20 @@ watch(
     if (props.assetHash === 'default') {
       asset.value = null
     } else {
-      const manager = await $assets.getManager()
+      const manager: AssetsManager = await $assets.getManager()
+
       if (!manager) {
-        console.log('No assets manager found')
+        notificationStore.create(
+          'Tic-Tac-Toe',
+          "Couldn't load assets manager",
+          NotificationType.Error
+        )
         return
       }
       const collections = await manager.getCollections()
 
       const ticTacToeCollection = collections.find(
-        (collection) => collection.name === 'Tic Tac Toe'
+        (collection) => collection.name === 'tic-tac-toe'
       )
       if (!ticTacToeCollection) return
       const _asset = await manager.getAsset(value, ticTacToeCollection.hash)
@@ -91,7 +98,7 @@ watch(
       const oUrl: Blob | null = await $obtain(asset.value.meta.ipfs_o, [
         'infura_kodadot1',
       ])
-      console.log(xUrl, oUrl)
+
       if (!xUrl || !oUrl) return
       xImage.value = new Image()
       xImage.value.src = URL.createObjectURL(xUrl)

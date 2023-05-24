@@ -8,15 +8,23 @@ const props = defineProps<{
   transactionRunning: boolean
 }>()
 
+const notificationStore = useNotificationStore()
+
 // All assets
 const allAssets = ref({})
 const resolveAssets = async () => {
   const assetManager = await $assets.getManager()
-  if (!assetManager) {
-    console.log('No assets manager found')
-    return
-  }
+  notificationStore.create(
+    'Assets',
+    'Fetching assets...',
+    NotificationType.Info
+  )
   allAssets.value = await assetManager.getAllAssets()
+  notificationStore.create(
+    'Assets',
+    'Assets fetched!',
+    NotificationType.Success
+  )
 }
 
 watch(

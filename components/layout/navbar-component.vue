@@ -12,7 +12,6 @@
             v-model:value="activeKey"
             mode="horizontal"
             :options="menuOptions"
-            colapsed
           />
         </n-space>
         <n-space align="center" :wrap-item="false">
@@ -51,7 +50,6 @@
               :default-expanded-keys="['menu']"
               dropdown-placement="top-start"
               mode="horizontal"
-              colapsed
             />
           </n-space>
         </n-space>
@@ -62,7 +60,6 @@
 
 <script lang="ts" setup>
 import {
-  CycloneFilled as CycloneIcon,
   DarkModeFilled as DarkMode,
   DarkModeTwotone as LightMode,
   MenuFilled as MenuIcon,
@@ -106,18 +103,6 @@ const menuOptions: MenuOption[] = [
       ),
     key: 'game',
     icon: renderIcon(GameIcon),
-  },
-  {
-    label: () =>
-      h(
-        'a',
-        {
-          href: '/teleport',
-        },
-        'Teleport'
-      ),
-    key: 'teleport',
-    icon: renderIcon(CycloneIcon),
   },
 ]
 

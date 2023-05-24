@@ -39,7 +39,7 @@ export const useNotificationStore = defineStore({
      * Create notification in app
      * @param title - Title of notification
      * @param message - Message inside notification
-     * @param type - Type of notitifcation based on `NotificationType` enum
+     * @param type - Type of notification based on `NotificationType` enum
      * @param duration - How long should this notification last in ms
      */
     create(
@@ -47,7 +47,7 @@ export const useNotificationStore = defineStore({
       message = '',
       type: NotificationType = NotificationType.Info,
       duration = 5000
-    ) {
+    ): number {
       const id = this.idCounter++
       this.notifications = [
         ...this.notifications,
@@ -59,6 +59,7 @@ export const useNotificationStore = defineStore({
           duration,
         },
       ]
+      return id
     },
     /**
      * Remove notification based on ID
@@ -66,6 +67,12 @@ export const useNotificationStore = defineStore({
      */
     remove(id: number) {
       this.notifications = this.notifications.filter((n) => n.id === id)
+    },
+    /**
+     * Remove all notifications
+     */
+    removeAll() {
+      this.notifications = []
     },
   },
 })
